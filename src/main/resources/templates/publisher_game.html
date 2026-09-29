@@ -1,0 +1,14 @@
+<tr>
+    <td><a href="/games/{{id}}">{{title}}</a></td>
+    <td>{{status}}</td>
+    <td>{{notes}}</td>
+    <td>
+        <form class="inline" method="post" action="/publisher/price">
+            <input type="hidden" name="csrf" value="{{csrf}}">
+            <input type="hidden" name="gameId" value="{{id}}">
+            <input type="text" inputmode="decimal" name="price" value="{{price}}"
+                   aria-label="{{msg:game.price}}" required>
+            <button>{{msg:publisher.changePrice}}</button>
+        </form>
+    </td>
+</tr>

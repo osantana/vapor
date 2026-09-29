@@ -1,0 +1,15 @@
+<h1>{{msg:register.title}}</h1>
+<form class="stack" method="post" action="/register">
+    <input type="hidden" name="csrf" value="{{csrf}}">
+    <label>{{msg:register.name}}
+        <input type="text" name="name" value="{{name}}" maxlength="120" required>
+    </label>
+    <label>{{msg:register.email}}
+        <input type="email" name="email" value="{{email}}" maxlength="254" required>
+    </label>
+    <label>{{msg:register.password}}
+        <input type="password" name="password" minlength="8" maxlength="128" required>
+        <small>{{msg:register.passwordHint}}</small>
+    </label>
+    <button>{{msg:register.submit}}</button>
+</form>

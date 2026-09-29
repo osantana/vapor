@@ -1,0 +1,231 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    line-height: 1.5;
+    color: #e6e9ef;
+    background: #171a21;
+}
+
+a {
+    color: #8ecbff;
+}
+
+header,
+footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #10131a;
+}
+
+header nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+}
+
+.brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+main {
+    max-width: 70rem;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+form {
+    margin: 0;
+}
+
+label {
+    display: block;
+}
+
+input,
+select,
+textarea,
+button,
+.button {
+    font: inherit;
+    padding: 0.5rem;
+    border: 1px solid #56607a;
+    border-radius: 0.25rem;
+    color: #e6e9ef;
+    background: #232833;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+select,
+textarea {
+    display: block;
+    width: 100%;
+}
+
+button,
+.button {
+    display: inline-block;
+    cursor: pointer;
+    text-decoration: none;
+    color: #10131a;
+    background: #8ecbff;
+    border-color: #8ecbff;
+}
+
+button.link {
+    padding: 0;
+    border: 0;
+    text-decoration: underline;
+    color: #8ecbff;
+    background: none;
+}
+
+:focus-visible {
+    outline: 3px solid #ffd166;
+    outline-offset: 2px;
+}
+
+.stack {
+    display: grid;
+    gap: 1rem;
+    max-width: 32rem;
+}
+
+.filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 1rem;
+    align-items: end;
+    margin-bottom: 1.5rem;
+}
+
+.inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.inline input {
+    width: auto;
+    flex: 1;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: 1rem;
+}
+
+.card {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    color: inherit;
+    background: #232833;
+}
+
+.card img,
+.game img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    background: #10131a;
+}
+
+.game {
+    display: grid;
+    grid-template-columns: minmax(10rem, 18rem) 1fr;
+    gap: 1.5rem;
+}
+
+.price {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.text {
+    white-space: pre-line;
+}
+
+.tag {
+    display: inline-block;
+    padding: 0 0.5rem;
+    border-radius: 1rem;
+    background: #3a4256;
+}
+
+.flash {
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+}
+
+.flash.success {
+    color: #10131a;
+    background: #9be3a8;
+}
+
+.flash.error {
+    color: #10131a;
+    background: #ffb3b3;
+}
+
+.order,
+.platform,
+fieldset {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid #3a4256;
+    border-radius: 0.25rem;
+}
+
+.check {
+    display: inline-block;
+    margin-right: 1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #3a4256;
+}
+
+@media (max-width: 40rem) {
+    .game {
+        grid-template-columns: 1fr;
+    }
+
+    table,
+    tbody,
+    tr,
+    td,
+    th {
+        display: block;
+    }
+
+    thead {
+        display: none;
+    }
+}

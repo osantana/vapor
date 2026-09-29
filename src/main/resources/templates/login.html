@@ -1,0 +1,11 @@
+<h1>{{msg:login.title}}</h1>
+<form class="stack" method="post" action="/login">
+    <input type="hidden" name="csrf" value="{{csrf}}">
+    <label>{{msg:register.email}}
+        <input type="email" name="email" value="{{email}}" required>
+    </label>
+    <label>{{msg:register.password}}
+        <input type="password" name="password" required>
+    </label>
+    <button>{{msg:login.submit}}</button>
+</form>

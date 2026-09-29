@@ -1,0 +1,10 @@
+<h1>{{msg:library.title}}</h1>
+<form class="filters" method="get" action="/library">
+    <label>{{msg:catalog.search}}
+        <input type="search" name="q" value="{{query}}">
+    </label>
+    <button>{{msg:catalog.apply}}</button>
+</form>
+<section class="grid">
+    {{games}}
+</section>

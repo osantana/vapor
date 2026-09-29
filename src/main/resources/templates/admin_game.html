@@ -1,0 +1,18 @@
+<section class="order">
+    <h2><a href="/games/{{id}}">{{title}}</a></h2>
+    <p>{{msg:game.publisher}}: {{publisher}} &middot; {{price}}</p>
+    <p class="text">{{description}}</p>
+    <p>{{notes}}</p>
+    <form class="stack" method="post" action="/admin/review">
+        <input type="hidden" name="csrf" value="{{csrf}}">
+        <input type="hidden" name="gameId" value="{{id}}">
+        <label>{{msg:admin.notes}}
+            <textarea name="notes" rows="2"></textarea>
+        </label>
+        <p>
+            <button name="decision" value="approve">{{msg:admin.approve}}</button>
+            <button name="decision" value="changes">{{msg:admin.requestChanges}}</button>
+            <button name="decision" value="reject">{{msg:admin.reject}}</button>
+        </p>
+    </form>
+</section>

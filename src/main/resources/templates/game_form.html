@@ -1,0 +1,34 @@
+<h1>{{msg:gameForm.title}}</h1>
+{{errors}}
+<form class="stack" method="post" action="/publisher/games">
+    <input type="hidden" name="csrf" value="{{csrf}}">
+    <label>{{msg:gameForm.name}}
+        <input type="text" name="title" value="{{title}}" maxlength="200" required>
+    </label>
+    <label>{{msg:game.description}}
+        <textarea name="description" rows="5" required>{{description}}</textarea>
+    </label>
+    <label>{{msg:game.requirements}}
+        <textarea name="requirements" rows="3">{{requirements}}</textarea>
+    </label>
+    <label>{{msg:gameForm.coverUrl}}
+        <input type="url" name="coverUrl" value="{{coverUrl}}" maxlength="500">
+    </label>
+    <label>{{msg:game.price}} (R$)
+        <input type="text" inputmode="decimal" name="price" value="{{price}}" required>
+        <small>{{msg:gameForm.priceHint}}</small>
+    </label>
+    <label>{{msg:game.releaseDate}}
+        <input type="date" name="releaseDate" value="{{releaseDate}}" required>
+    </label>
+    <fieldset>
+        <legend>{{msg:catalog.genre}}</legend>
+        {{genres}}
+    </fieldset>
+    <fieldset>
+        <legend>{{msg:gameForm.files}}</legend>
+        <small>{{msg:gameForm.filesHint}}</small>
+        {{platforms}}
+    </fieldset>
+    <button>{{msg:gameForm.submit}}</button>
+</form>

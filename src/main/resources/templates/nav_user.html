@@ -1,0 +1,9 @@
+<a href="/library">{{msg:nav.library}}</a>
+<a href="/orders">{{msg:nav.orders}}</a>
+<a href="/publisher">{{msg:nav.publisher}}</a>
+{{adminLink}}
+<a href="/cart">{{msg:nav.cart}} ({{cartCount}})</a>
+<form method="post" action="/logout">
+    <input type="hidden" name="csrf" value="{{csrf}}">
+    <button class="link">{{msg:nav.logout}} ({{userName}})</button>
+</form>
