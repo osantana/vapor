@@ -5,11 +5,11 @@ Digital game store. Java 25, Javalin, PostgreSQL. Specification: `projeto-vapor.
 ## Run
 
 ```bash
-cp .env.example .env    # then change the passwords and the secret key
 docker compose up --build
 ```
 
-Open http://localhost:8080 and log in as administrator with `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
+Open http://localhost:8080. The local administrator is `admin@example.com` with the password
+`admin12345`. To change any value, copy `.env.example` to `.env` and edit it.
 
 To run from IntelliJ: open `pom.xml` as a project, start only the database with
 `docker compose up db` and run `vapor.Main`.
