@@ -87,9 +87,17 @@ public class AuthService {
         } catch (NotFoundException exception) {
             throw new BusinessRuleException("error.invalidCredentials");
         }
+        OffsetDateTime now = OffsetDateTime.now();
+        if (user.isLocked(now)) {
+            throw new BusinessRuleException("error.accountLocked");
+        }
         if (!user.authenticate(password)) {
+            user.registerFailedLogin(now);
+            userRepository.updateLoginState(user);
             throw new BusinessRuleException("error.invalidCredentials");
         }
+        user.registerSuccessfulLogin();
+        userRepository.updateLoginState(user);
         return user;
     }
 

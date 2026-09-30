@@ -17,7 +17,9 @@ import vapor.model.Cart;
 import vapor.model.Game;
 import vapor.model.GameStatus;
 import vapor.model.PasswordHasher;
+import vapor.model.Role;
 import vapor.model.SalesMetrics;
+import vapor.model.User;
 import vapor.service.AuthService;
 import vapor.service.CatalogService;
 import vapor.service.DownloadService;
@@ -53,6 +55,24 @@ public class BusinessRulesTest {
         assertTrue(PasswordHasher.matches("secret123", hash));
         assertFalse(PasswordHasher.matches("secret124", hash));
         assertFalse(hash.contains("secret123"));
+    }
+
+    @Test
+    void fiveFailedLoginsLockTheAccountForFifteenMinutes() {
+        User user = new User(UUID.randomUUID(), "Player", "player@example.com", "hash", Role.USER,
+                OffsetDateTime.now());
+        OffsetDateTime now = OffsetDateTime.now();
+        for (int attempt = 1; attempt <= 4; attempt++) {
+            user.registerFailedLogin(now);
+        }
+        assertFalse(user.isLocked(now));
+        user.registerFailedLogin(now);
+        assertTrue(user.isLocked(now));
+        assertTrue(user.isLocked(now.plusMinutes(14)));
+        assertFalse(user.isLocked(now.plusMinutes(16)));
+        user.registerSuccessfulLogin();
+        assertFalse(user.isLocked(now));
+        assertEquals(0, user.getFailedLogins());
     }
 
     @Test

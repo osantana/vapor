@@ -73,13 +73,26 @@ public class UserRepository {
         return user;
     }
 
+    public void updateLoginState(User user) throws SQLException {
+        String sql = "UPDATE users SET failed_logins = ?, locked_until = ? WHERE id = ?";
+        try (Connection connection = database.connect();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, user.getFailedLogins());
+            statement.setObject(2, user.getLockedUntil());
+            statement.setObject(3, user.getId());
+            statement.executeUpdate();
+        }
+    }
+
     private User rowToUser(ResultSet row) throws SQLException {
-        return new User(
+        User user = new User(
                 row.getObject("id", UUID.class),
                 row.getString("name"),
                 row.getString("email"),
                 row.getString("password_hash"),
                 Role.valueOf(row.getString("role").toUpperCase()),
                 row.getObject("created_at", OffsetDateTime.class));
+        user.restoreLoginState(row.getInt("failed_logins"), row.getObject("locked_until", OffsetDateTime.class));
+        return user;
     }
 }

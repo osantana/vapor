@@ -4,8 +4,13 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(254) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'administrator')),
-    created_at TIMESTAMPTZ NOT NULL
+    created_at TIMESTAMPTZ NOT NULL,
+    failed_logins INTEGER NOT NULL DEFAULT 0,
+    locked_until TIMESTAMPTZ
 );
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_logins INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ;
 
 CREATE TABLE IF NOT EXISTS games (
     id UUID PRIMARY KEY,
