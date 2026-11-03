@@ -17,8 +17,12 @@ public class AuthService {
         this.userRepository = userRepository;
     }
 
+    // Good enough for a form: something@domain.tld, without spaces.
     public static boolean isValidEmail(String email) {
-        return email.length() <= 254 && email.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+");
+        int at = email.indexOf('@');
+        int dot = email.lastIndexOf('.');
+        boolean hasSpace = email.contains(" ");
+        return email.length() <= 254 && !hasSpace && at > 0 && dot > at + 1 && dot < email.length() - 1;
     }
 
     public User register(String name, String email, String password)

@@ -21,15 +21,19 @@ public class CatalogService {
     }
 
     public static BigDecimal parsePrice(String text) {
-        String clean = text.trim().replace(",", ".");
-        if (!clean.matches("[0-9]{1,8}(\\.[0-9]{1,2})?")) {
+        BigDecimal price;
+        try {
+            price = new BigDecimal(text.trim().replace(",", "."));
+        } catch (NumberFormatException exception) {
             throw new BusinessRuleException("error.invalidPrice");
         }
-        BigDecimal price = new BigDecimal(clean);
-        if (price.compareTo(MAXIMUM_PRICE) > 0) {
+        boolean negative = price.signum() < 0;
+        boolean tooManyDecimals = price.scale() > 2;
+        boolean tooBig = price.compareTo(MAXIMUM_PRICE) > 0;
+        if (negative || tooManyDecimals || tooBig) {
             throw new BusinessRuleException("error.invalidPrice");
         }
-        return price;
+        return price.setScale(2);
     }
 
     public static boolean isWebAddress(String url) {

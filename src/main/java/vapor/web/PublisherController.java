@@ -138,10 +138,11 @@ public class PublisherController {
 
     // An invalid size becomes zero, which the validation rejects.
     private long readSize(String megabytes) {
-        if (!megabytes.matches("[0-9]{1,7}")) {
+        try {
+            return Integer.parseInt(megabytes) * BYTES_PER_MEGABYTE;
+        } catch (NumberFormatException exception) {
             return 0;
         }
-        return Long.parseLong(megabytes) * BYTES_PER_MEGABYTE;
     }
 
     private void renderGameForm(Context ctx, List<String> errors) throws IOException, SQLException {

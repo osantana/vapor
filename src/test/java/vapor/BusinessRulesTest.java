@@ -73,9 +73,11 @@ public class BusinessRulesTest {
     @Test
     void priceAcceptsCommaAndRejectsInvalidText() {
         assertEquals(new BigDecimal("59.90"), CatalogService.parsePrice("59,90"));
-        assertEquals(new BigDecimal("0"), CatalogService.parsePrice("0"));
+        assertEquals(new BigDecimal("0.00"), CatalogService.parsePrice("0"));
         assertThrows(BusinessRuleException.class, () -> CatalogService.parsePrice("-1"));
         assertThrows(BusinessRuleException.class, () -> CatalogService.parsePrice("abc"));
+        assertThrows(BusinessRuleException.class, () -> CatalogService.parsePrice("1.999"));
+        assertThrows(BusinessRuleException.class, () -> CatalogService.parsePrice("100000000"));
     }
 
     @Test

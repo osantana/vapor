@@ -17,12 +17,21 @@ public class PaymentGateway {
             return;
         }
         String digits = cardNumber.replace(" ", "");
-        if (!digits.matches("[0-9]{13,19}")) {
+        if (digits.length() < 13 || digits.length() > 19 || !isAllDigits(digits)) {
             throw new BusinessRuleException("error.invalidCard");
         }
         if (digits.endsWith("0000")) {
             throw new BusinessRuleException("error.paymentDeclined");
         }
         logger.info("Card payment approved for order of " + order.getTotal());
+    }
+
+    private boolean isAllDigits(String text) {
+        for (int index = 0; index < text.length(); index++) {
+            if (!Character.isDigit(text.charAt(index))) {
+                return false;
+            }
+        }
+        return true;
     }
 }
