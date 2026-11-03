@@ -24,5 +24,5 @@ To run from IntelliJ: open `pom.xml` as a project, start only the database with
 
 ## Contribute and deploy
 
-Open a pull request against `main`; `mvn package` runs the tests.
+Open a pull request against `main`; `mvn package` builds the jar.
 Deploy the image built from the `Dockerfile` with the variables of `.env.example`.
