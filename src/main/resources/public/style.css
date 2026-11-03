@@ -102,6 +102,7 @@ button.link {
     display: grid;
     gap: 1rem;
     max-width: 32rem;
+    margin-bottom: 1.5rem;
 }
 
 .filters {

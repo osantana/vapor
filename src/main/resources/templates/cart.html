@@ -19,15 +19,13 @@
 </table>
 <h2>Pagamento</h2>
 <form class="stack" method="post" action="/checkout">
-    <label>
-        <input type="radio" name="paymentMethod" value="pix" checked> PIX
-    </label>
-    <label>
-        <input type="radio" name="paymentMethod" value="credit_card"> Cartão de crédito
-    </label>
+    <input type="hidden" name="paymentMethod" value="pix">
+    <button>Pagar com PIX</button>
+</form>
+<form class="stack" method="post" action="/checkout">
+    <input type="hidden" name="paymentMethod" value="credit_card">
     <label>Número do cartão
-        <input type="text" inputmode="numeric" name="cardNumber" autocomplete="off" maxlength="23">
-        <small>Apenas para pagamento com cartão de crédito.</small>
+        <input type="text" inputmode="numeric" name="cardNumber" autocomplete="off" maxlength="23" required>
     </label>
-    <button>Confirmar compra</button>
+    <button>Pagar com cartão de crédito</button>
 </form>
