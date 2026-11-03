@@ -11,8 +11,6 @@ import vapor.model.User;
 import vapor.repository.UserRepository;
 
 public class AuthService {
-    private static final int MAXIMUM_PASSWORD_LENGTH = 128;
-
     private final UserRepository userRepository;
 
     public AuthService(UserRepository userRepository) {
@@ -21,24 +19,6 @@ public class AuthService {
 
     public static boolean isValidEmail(String email) {
         return email.length() <= 254 && email.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+");
-    }
-
-    public static boolean isStrongPassword(String password) {
-        if (password.length() < 8 || password.length() > MAXIMUM_PASSWORD_LENGTH) {
-            return false;
-        }
-        boolean hasLetter = false;
-        boolean hasDigit = false;
-        for (int index = 0; index < password.length(); index++) {
-            char character = password.charAt(index);
-            if (Character.isLetter(character)) {
-                hasLetter = true;
-            }
-            if (Character.isDigit(character)) {
-                hasDigit = true;
-            }
-        }
-        return hasLetter && hasDigit;
     }
 
     public User register(String name, String email, String password)
@@ -64,8 +44,8 @@ public class AuthService {
         if (!isValidEmail(cleanEmail)) {
             throw new BusinessRuleException("error.invalidEmail");
         }
-        if (!isStrongPassword(password)) {
-            throw new BusinessRuleException("error.weakPassword");
+        if (password.isEmpty()) {
+            throw new BusinessRuleException("error.passwordRequired");
         }
         if (userRepository.emailExists(cleanEmail)) {
             throw new BusinessRuleException("error.emailTaken");
@@ -75,9 +55,6 @@ public class AuthService {
     }
 
     public User login(String email, String password) throws SQLException, GeneralSecurityException {
-        if (password.length() > MAXIMUM_PASSWORD_LENGTH) {
-            throw new BusinessRuleException("error.invalidCredentials");
-        }
         User user;
         try {
             user = userRepository.findByEmail(normalize(email));

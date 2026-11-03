@@ -19,23 +19,23 @@ import vapor.model.Genre;
 import vapor.model.Platform;
 import vapor.model.SalesMetrics;
 import vapor.repository.CatalogRepository;
+import vapor.repository.OrderRepository;
 import vapor.service.CatalogService;
-import vapor.service.SalesDashboardService;
 
 public class PublisherController {
     private static final long BYTES_PER_MEGABYTE = 1024 * 1024;
 
-    private Views views;
-    private CatalogRepository catalogRepository;
-    private CatalogService catalogService;
-    private SalesDashboardService salesDashboardService;
+    private final Views views;
+    private final CatalogRepository catalogRepository;
+    private final OrderRepository orderRepository;
+    private final CatalogService catalogService;
 
-    public PublisherController(Views views, CatalogRepository catalogRepository, CatalogService catalogService,
-                               SalesDashboardService salesDashboardService) {
+    public PublisherController(Views views, CatalogRepository catalogRepository, OrderRepository orderRepository,
+                               CatalogService catalogService) {
         this.views = views;
         this.catalogRepository = catalogRepository;
+        this.orderRepository = orderRepository;
         this.catalogService = catalogService;
-        this.salesDashboardService = salesDashboardService;
     }
 
     public void dashboard(Context ctx) throws IOException, SQLException {
@@ -54,7 +54,7 @@ public class PublisherController {
         }
 
         String sales = "";
-        for (SalesMetrics metrics : salesDashboardService.getMetrics(userId)) {
+        for (SalesMetrics metrics : orderRepository.salesByCreator(userId)) {
             Template row = views.template(ctx, "publisher_sale");
             row.set("title", metrics.getGameTitle());
             row.set("units", metrics.getUnitsSold());
@@ -67,12 +67,6 @@ public class PublisherController {
         page.setHtml("games", games);
         page.setHtml("sales", sales);
         views.render(ctx, messages.get("publisher.title"), page.render());
-    }
-
-    public void salesCsv(Context ctx) throws SQLException {
-        ctx.contentType("text/csv; charset=utf-8");
-        ctx.header("Content-Disposition", "attachment; filename=\"sales.csv\"");
-        ctx.result(salesDashboardService.exportCsv(Requests.currentUserId(ctx)));
     }
 
     public void changePrice(Context ctx) throws SQLException {

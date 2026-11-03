@@ -16,7 +16,6 @@ import vapor.service.CatalogService;
 import vapor.service.CheckoutService;
 import vapor.service.DownloadService;
 import vapor.service.PaymentGateway;
-import vapor.service.SalesDashboardService;
 import vapor.web.AdminController;
 import vapor.web.AuthController;
 import vapor.web.CartController;
@@ -50,7 +49,6 @@ public class Main {
                 libraryRepository, paymentGateway);
         DownloadService downloadService = new DownloadService(config.require("SECRET_KEY"),
                 libraryRepository, catalogRepository);
-        SalesDashboardService salesDashboardService = new SalesDashboardService(orderRepository);
 
         authService.ensureAdministrator(config.require("ADMIN_EMAIL"), config.require("ADMIN_PASSWORD"));
         if (config.get("DEMO_DATA", "false").equals("true")) {
@@ -65,8 +63,8 @@ public class Main {
         OrderController orders = new OrderController(views, orderRepository, checkoutService);
         LibraryController library = new LibraryController(views, libraryRepository, catalogRepository,
                 downloadService);
-        PublisherController publisher = new PublisherController(views, catalogRepository, catalogService,
-                salesDashboardService);
+        PublisherController publisher = new PublisherController(views, catalogRepository, orderRepository,
+                catalogService);
         AdminController admin = new AdminController(views, catalogRepository);
 
         Javalin application = Javalin.create(javalin -> {
@@ -96,7 +94,6 @@ public class Main {
             javalin.routes.get("/download/{gameId}/{assetId}", ctx -> library.download(ctx));
 
             javalin.routes.get("/publisher", ctx -> publisher.dashboard(ctx));
-            javalin.routes.get("/publisher/sales.csv", ctx -> publisher.salesCsv(ctx));
             javalin.routes.get("/publisher/games/new", ctx -> publisher.showGameForm(ctx));
             javalin.routes.post("/publisher/games", ctx -> publisher.createGame(ctx));
             javalin.routes.post("/publisher/price", ctx -> publisher.changePrice(ctx));

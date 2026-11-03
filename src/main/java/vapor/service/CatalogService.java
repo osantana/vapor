@@ -66,17 +66,16 @@ public class CatalogService {
         return errors;
     }
 
-    public Game registerGame(Game game) throws SQLException {
-        return catalogRepository.insert(game);
+    public void registerGame(Game game) throws SQLException {
+        catalogRepository.insert(game);
     }
 
-    public Game changePrice(long userId, long gameId, BigDecimal price) throws SQLException {
+    public void changePrice(long userId, long gameId, BigDecimal price) throws SQLException {
         Game game = catalogRepository.findById(gameId);
         if (!game.isCreatedBy(userId)) {
             throw new NotFoundException("Game " + gameId + " not found");
         }
         game.updatePrice(price);
         catalogRepository.updatePrice(game);
-        return game;
     }
 }

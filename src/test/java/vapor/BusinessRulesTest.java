@@ -20,7 +20,6 @@ import vapor.service.AuthService;
 import vapor.service.CatalogService;
 import vapor.service.DownloadService;
 import vapor.service.PasswordHasher;
-import vapor.service.SalesDashboardService;
 import vapor.web.Messages;
 import vapor.web.Template;
 
@@ -28,14 +27,6 @@ public class BusinessRulesTest {
     private Game newGame(long id, String price) {
         return new Game(id, 1, "Game", "Description", new BigDecimal(price), LocalDate.now(),
                 GameStatus.APPROVED, OffsetDateTime.now());
-    }
-
-    @Test
-    void passwordNeedsEightCharactersWithLetterAndNumber() {
-        assertTrue(AuthService.isStrongPassword("abcdefg1"));
-        assertFalse(AuthService.isStrongPassword("abcdef1"));
-        assertFalse(AuthService.isStrongPassword("abcdefgh"));
-        assertFalse(AuthService.isStrongPassword("12345678"));
     }
 
     @Test
@@ -97,11 +88,5 @@ public class BusinessRulesTest {
         assertTrue(html.contains("&lt;script&gt;"));
         assertEquals("Catálogo", Messages.forLanguage("pt_BR").get("catalog.title"));
         assertEquals("Catalog", Messages.forLanguage("en").get("catalog.title"));
-    }
-
-    @Test
-    void csvNeutralizesFormulas() {
-        assertEquals("\"'=SUM(A1)\"", SalesDashboardService.escape("=SUM(A1)"));
-        assertEquals("\"My \"\"Game\"\"\"", SalesDashboardService.escape("My \"Game\""));
     }
 }
