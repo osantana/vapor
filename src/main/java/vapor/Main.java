@@ -59,6 +59,9 @@ public class Main {
         SalesDashboardService salesDashboardService = new SalesDashboardService(orderRepository);
 
         authService.ensureAdministrator(config.require("ADMIN_EMAIL"), config.require("ADMIN_PASSWORD"));
+        if (config.get("DEMO_DATA", "false").equals("true")) {
+            new DemoData(userRepository, catalogRepository, cartRepository, authService, checkoutService).load();
+        }
 
         Views views = new Views(cartRepository);
         AuthController auth = new AuthController(views, authService);

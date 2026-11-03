@@ -12,7 +12,7 @@ import vapor.model.Cart;
 import vapor.model.CartItem;
 
 public class CartRepository {
-    private Database database;
+    private final Database database;
 
     public CartRepository(Database database) {
         this.database = database;

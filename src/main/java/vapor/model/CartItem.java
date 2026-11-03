@@ -5,11 +5,11 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public class CartItem {
-    private UUID id;
-    private UUID gameId;
-    private String gameTitle;
-    private BigDecimal unitPrice;
-    private OffsetDateTime addedAt;
+    private final UUID id;
+    private final UUID gameId;
+    private final String gameTitle;
+    private final BigDecimal unitPrice;
+    private final OffsetDateTime addedAt;
 
     public CartItem(UUID id, UUID gameId, String gameTitle, BigDecimal unitPrice, OffsetDateTime addedAt) {
         this.id = id;

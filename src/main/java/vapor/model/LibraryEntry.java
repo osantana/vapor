@@ -4,11 +4,11 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public class LibraryEntry {
-    private UUID id;
-    private UUID userId;
-    private UUID gameId;
-    private OffsetDateTime acquiredAt;
-    private int minutesPlayed;
+    private final UUID id;
+    private final UUID userId;
+    private final UUID gameId;
+    private final OffsetDateTime acquiredAt;
+    private final int minutesPlayed;
 
     public LibraryEntry(UUID id, UUID userId, UUID gameId, OffsetDateTime acquiredAt, int minutesPlayed) {
         this.id = id;

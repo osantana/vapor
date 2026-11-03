@@ -10,20 +10,20 @@ import java.util.UUID;
 import vapor.NotFoundException;
 
 public class Game {
-    private UUID id;
-    private UUID creatorId;
+    private final UUID id;
+    private final UUID creatorId;
     private String creatorName = "";
-    private String title;
-    private String description;
+    private final String title;
+    private final String description;
     private String systemRequirements = "";
     private String coverUrl = "";
     private BigDecimal price;
-    private LocalDate releaseDate;
+    private final LocalDate releaseDate;
     private GameStatus status;
     private String reviewNotes = "";
-    private OffsetDateTime createdAt;
-    private List<Genre> genres = new ArrayList<>();
-    private List<GameAsset> assets = new ArrayList<>();
+    private final OffsetDateTime createdAt;
+    private final List<Genre> genres = new ArrayList<>();
+    private final List<GameAsset> assets = new ArrayList<>();
 
     public Game(UUID id, UUID creatorId, String title, String description, BigDecimal price,
                 LocalDate releaseDate, GameStatus status, OffsetDateTime createdAt) {

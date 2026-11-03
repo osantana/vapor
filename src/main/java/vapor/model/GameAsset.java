@@ -3,11 +3,11 @@ package vapor.model;
 import java.util.UUID;
 
 public class GameAsset {
-    private UUID id;
-    private UUID gameId;
-    private Platform platform;
-    private long fileSize;
-    private String downloadUrl;
+    private final UUID id;
+    private final UUID gameId;
+    private final Platform platform;
+    private final long fileSize;
+    private final String downloadUrl;
 
     public GameAsset(UUID id, UUID gameId, Platform platform, long fileSize, String downloadUrl) {
         this.id = id;

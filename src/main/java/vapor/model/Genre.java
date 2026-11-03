@@ -3,8 +3,8 @@ package vapor.model;
 import java.util.UUID;
 
 public class Genre {
-    private UUID id;
-    private String name;
+    private final UUID id;
+    private final String name;
 
     public Genre(UUID id, String name) {
         this.id = id;

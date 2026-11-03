@@ -9,8 +9,8 @@ import java.util.UUID;
 import vapor.BusinessRuleException;
 
 public class Cart {
-    private UUID userId;
-    private List<CartItem> items = new ArrayList<>();
+    private final UUID userId;
+    private final List<CartItem> items = new ArrayList<>();
 
     public Cart(UUID userId) {
         this.userId = userId;

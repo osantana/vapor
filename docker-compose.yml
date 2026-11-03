@@ -26,6 +26,7 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
       REFUND_DAYS: ${REFUND_DAYS:-14}
+      DEMO_DATA: ${DEMO_DATA:-true}
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:
