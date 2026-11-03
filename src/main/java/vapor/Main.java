@@ -72,31 +72,31 @@ public class Main {
 
             javalin.routes.before(new Security());
 
-            javalin.routes.get("/", ctx -> catalog.list(ctx));
-            javalin.routes.get("/games/{id}", ctx -> catalog.detail(ctx));
+            javalin.routes.get("/", catalog::list);
+            javalin.routes.get("/games/{id}", catalog::detail);
 
-            javalin.routes.get("/register", ctx -> auth.showRegister(ctx));
-            javalin.routes.post("/register", ctx -> auth.register(ctx));
-            javalin.routes.get("/login", ctx -> auth.showLogin(ctx));
-            javalin.routes.post("/login", ctx -> auth.login(ctx));
-            javalin.routes.post("/logout", ctx -> auth.logout(ctx));
+            javalin.routes.get("/register", auth::showRegister);
+            javalin.routes.post("/register", auth::register);
+            javalin.routes.get("/login", auth::showLogin);
+            javalin.routes.post("/login", auth::login);
+            javalin.routes.post("/logout", auth::logout);
 
-            javalin.routes.get("/cart", ctx -> cart.show(ctx));
-            javalin.routes.post("/cart/add", ctx -> cart.add(ctx));
-            javalin.routes.post("/cart/remove", ctx -> cart.remove(ctx));
-            javalin.routes.post("/checkout", ctx -> orders.checkout(ctx));
-            javalin.routes.get("/orders", ctx -> orders.list(ctx));
+            javalin.routes.get("/cart", cart::show);
+            javalin.routes.post("/cart/add", cart::add);
+            javalin.routes.post("/cart/remove", cart::remove);
+            javalin.routes.post("/checkout", orders::checkout);
+            javalin.routes.get("/orders", orders::list);
 
-            javalin.routes.get("/library", ctx -> library.list(ctx));
-            javalin.routes.post("/library/download", ctx -> library.download(ctx));
+            javalin.routes.get("/library", library::list);
+            javalin.routes.post("/library/download", library::download);
 
-            javalin.routes.get("/publisher", ctx -> publisher.dashboard(ctx));
-            javalin.routes.get("/publisher/games/new", ctx -> publisher.showGameForm(ctx));
-            javalin.routes.post("/publisher/games", ctx -> publisher.createGame(ctx));
-            javalin.routes.post("/publisher/price", ctx -> publisher.changePrice(ctx));
+            javalin.routes.get("/publisher", publisher::dashboard);
+            javalin.routes.get("/publisher/games/new", publisher::showGameForm);
+            javalin.routes.post("/publisher/games", publisher::createGame);
+            javalin.routes.post("/publisher/price", publisher::changePrice);
 
-            javalin.routes.get("/admin", ctx -> admin.queue(ctx));
-            javalin.routes.post("/admin/review", ctx -> admin.review(ctx));
+            javalin.routes.get("/admin", admin::queue);
+            javalin.routes.post("/admin/review", admin::review);
 
             javalin.routes.exception(NotFoundException.class, (exception, ctx) -> {
                 ctx.status(404);
