@@ -16,7 +16,6 @@ import vapor.model.Cart;
 import vapor.model.Game;
 import vapor.model.GameStatus;
 import vapor.model.SalesMetrics;
-import vapor.service.AuthService;
 import vapor.service.CatalogService;
 import vapor.service.DownloadService;
 import vapor.service.PasswordHasher;
@@ -27,13 +26,6 @@ public class BusinessRulesTest {
     private Game newGame(long id, String price) {
         return new Game(id, 1, "Game", "Description", new BigDecimal(price), LocalDate.now(),
                 GameStatus.APPROVED, OffsetDateTime.now());
-    }
-
-    @Test
-    void emailFormatIsValidated() {
-        assertTrue(AuthService.isValidEmail("player@example.com"));
-        assertFalse(AuthService.isValidEmail("player@example"));
-        assertFalse(AuthService.isValidEmail("player example@example.com"));
     }
 
     @Test

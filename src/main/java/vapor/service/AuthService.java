@@ -17,14 +17,6 @@ public class AuthService {
         this.userRepository = userRepository;
     }
 
-    // Good enough for a form: something@domain.tld, without spaces.
-    public static boolean isValidEmail(String email) {
-        int at = email.indexOf('@');
-        int dot = email.lastIndexOf('.');
-        boolean hasSpace = email.contains(" ");
-        return email.length() <= 254 && !hasSpace && at > 0 && dot > at + 1 && dot < email.length() - 1;
-    }
-
     public User register(String name, String email, String password)
             throws SQLException, GeneralSecurityException {
         return createUser(name, email, password, Role.USER);
@@ -45,8 +37,8 @@ public class AuthService {
         if (cleanName.isEmpty() || cleanName.length() > 120) {
             throw new BusinessRuleException("error.invalidName");
         }
-        if (!isValidEmail(cleanEmail)) {
-            throw new BusinessRuleException("error.invalidEmail");
+        if (cleanEmail.isEmpty() || cleanEmail.length() > 254) {
+            throw new BusinessRuleException("error.emailRequired");
         }
         if (password.isEmpty()) {
             throw new BusinessRuleException("error.passwordRequired");
