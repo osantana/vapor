@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import io.javalin.http.BadRequestResponse;
@@ -25,9 +23,7 @@ import vapor.repository.LibraryRepository;
 import vapor.service.CatalogService;
 
 public class CatalogController {
-    private static final String[] FILTER_NAMES = {"q", "genre", "platform", "min", "max", "from", "sort"};
-    private static final String[] SORT_CODES = {"relevance", "price", "release"};
-    private static final String[] SORT_LABELS = {"Relevância", "Preço", "Data de lançamento"};
+    private static final String[] FILTER_NAMES = {"q", "genre", "platform", "min", "max"};
 
     private final Views views;
     private final CatalogRepository catalogRepository;
@@ -63,10 +59,8 @@ public class CatalogController {
         page.set("query", filter.getQuery());
         page.set("min", Requests.query(ctx, "min"));
         page.set("max", Requests.query(ctx, "max"));
-        page.set("from", Requests.query(ctx, "from"));
         page.setHtml("genreOptions", genreOptions(ctx, filter));
         page.setHtml("platformOptions", platformOptions(ctx, filter));
-        page.setHtml("sortOptions", sortOptions(ctx, filter));
         page.setHtml("cards", cards);
         page.setHtml("pagination", pagination(ctx, filter, hasNextPage));
         views.render(ctx, "Catálogo", page.render());
@@ -75,7 +69,6 @@ public class CatalogController {
     private GameFilter readFilter(Context ctx) {
         GameFilter filter = new GameFilter();
         filter.setQuery(Requests.query(ctx, "q"));
-        filter.setSort(Requests.query(ctx, "sort"));
         try {
             String genre = Requests.query(ctx, "genre");
             if (!genre.isEmpty()) {
@@ -93,15 +86,11 @@ public class CatalogController {
             if (!maximum.isEmpty()) {
                 filter.setMaximumPrice(CatalogService.parsePrice(maximum));
             }
-            String releasedFrom = Requests.query(ctx, "from");
-            if (!releasedFrom.isEmpty()) {
-                filter.setReleasedFrom(LocalDate.parse(releasedFrom));
-            }
             String page = Requests.query(ctx, "page");
             if (!page.isEmpty()) {
                 filter.setPage(Integer.parseInt(page));
             }
-        } catch (BusinessRuleException | DateTimeParseException | IllegalArgumentException exception) {
+        } catch (BusinessRuleException | IllegalArgumentException exception) {
             throw new BadRequestResponse();
         }
         if (filter.getPage() < 1 || filter.getPage() > 10000) {
@@ -140,15 +129,6 @@ public class CatalogController {
         for (Platform platform : Platform.values()) {
             boolean selected = platform == filter.getPlatform();
             options += option(ctx, platform.getCode(), platform.getLabel(), selected);
-        }
-        return options;
-    }
-
-    private String sortOptions(Context ctx, GameFilter filter) throws IOException {
-        String options = "";
-        for (int index = 0; index < SORT_CODES.length; index++) {
-            boolean selected = SORT_CODES[index].equals(filter.getSort());
-            options += option(ctx, SORT_CODES[index], SORT_LABELS[index], selected);
         }
         return options;
     }

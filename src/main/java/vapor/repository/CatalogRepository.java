@@ -83,11 +83,7 @@ public class CatalogRepository {
             sql += " AND g.price <= ?";
             parameters.add(filter.getMaximumPrice());
         }
-        if (filter.getReleasedFrom() != null) {
-            sql += " AND g.release_date >= ?";
-            parameters.add(filter.getReleasedFrom());
-        }
-        sql += " ORDER BY " + orderBy(filter.getSort()) + " LIMIT ? OFFSET ?";
+        sql += " ORDER BY g.created_at DESC, g.id LIMIT ? OFFSET ?";
         parameters.add(GameFilter.PAGE_SIZE + 1);
         parameters.add(filter.offset());
 
@@ -98,16 +94,6 @@ public class CatalogRepository {
             }
             return rowsToGames(connection, statement.executeQuery());
         }
-    }
-
-    private String orderBy(String sort) {
-        if (sort.equals("price")) {
-            return "g.price ASC, g.id";
-        }
-        if (sort.equals("release")) {
-            return "g.release_date DESC, g.id";
-        }
-        return "g.created_at DESC, g.id";
     }
 
     public Game insert(Game game) throws SQLException {

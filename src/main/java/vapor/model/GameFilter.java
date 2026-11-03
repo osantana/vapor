@@ -1,9 +1,8 @@
 package vapor.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
-// Zero in genreId and null in platform mean "no filter".
+// Zero in genreId and null in platform or prices mean "no filter".
 public class GameFilter {
     public static final int PAGE_SIZE = 20;
 
@@ -12,8 +11,6 @@ public class GameFilter {
     private Platform platform;
     private BigDecimal minimumPrice;
     private BigDecimal maximumPrice;
-    private LocalDate releasedFrom;
-    private String sort = "relevance";
     private int page = 1;
 
     public int offset() {
@@ -58,22 +55,6 @@ public class GameFilter {
 
     public void setMaximumPrice(BigDecimal maximumPrice) {
         this.maximumPrice = maximumPrice;
-    }
-
-    public LocalDate getReleasedFrom() {
-        return releasedFrom;
-    }
-
-    public void setReleasedFrom(LocalDate releasedFrom) {
-        this.releasedFrom = releasedFrom;
-    }
-
-    public String getSort() {
-        return sort;
-    }
-
-    public void setSort(String sort) {
-        this.sort = sort;
     }
 
     public int getPage() {
