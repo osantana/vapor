@@ -81,7 +81,7 @@ public class Game {
                 return asset;
             }
         }
-        throw new NotFoundException("Asset " + assetId + " not found");
+        throw new NotFoundException("Arquivo " + assetId + " não encontrado");
     }
 
     public long getId() {

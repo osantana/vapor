@@ -77,7 +77,7 @@ public class CatalogService {
     public void changePrice(long userId, long gameId, BigDecimal price) throws SQLException {
         Game game = catalogRepository.findById(gameId);
         if (!game.isCreatedBy(userId)) {
-            throw new NotFoundException("Game " + gameId + " not found");
+            throw new NotFoundException("Jogo " + gameId + " não encontrado");
         }
         game.updatePrice(price);
         catalogRepository.updatePrice(game);

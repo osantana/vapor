@@ -36,7 +36,7 @@ public class CatalogRepository {
             statement.setLong(1, gameId);
             ResultSet row = statement.executeQuery();
             if (!row.next()) {
-                throw new NotFoundException("Game " + gameId + " not found");
+                throw new NotFoundException("Jogo " + gameId + " não encontrado");
             }
             return rowToGame(connection, row);
         }

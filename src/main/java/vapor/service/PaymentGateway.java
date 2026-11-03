@@ -13,7 +13,7 @@ public class PaymentGateway {
 
     public void charge(Order order, String cardNumber) {
         if (order.getPaymentMethod() == PaymentMethod.PIX) {
-            logger.info("PIX payment approved for order of " + order.getTotal());
+            logger.info("Pagamento PIX aprovado para pedido de " + order.getTotal());
             return;
         }
         String digits = cardNumber.replace(" ", "");
@@ -23,7 +23,7 @@ public class PaymentGateway {
         if (digits.endsWith("0000")) {
             throw new BusinessRuleException("Pagamento recusado. Seu carrinho foi mantido, tente novamente.");
         }
-        logger.info("Card payment approved for order of " + order.getTotal());
+        logger.info("Pagamento com cartão aprovado para pedido de " + order.getTotal());
     }
 
     private boolean isAllDigits(String text) {

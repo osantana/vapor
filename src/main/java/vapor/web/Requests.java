@@ -23,7 +23,7 @@ public class Requests {
         try {
             return Long.parseLong(text);
         } catch (NumberFormatException exception) {
-            throw new NotFoundException("Invalid identifier");
+            throw new NotFoundException("Identificador inválido");
         }
     }
 

@@ -25,7 +25,7 @@ public class UserRepository {
             statement.setLong(1, userId);
             ResultSet row = statement.executeQuery();
             if (!row.next()) {
-                throw new NotFoundException("User " + userId + " not found");
+                throw new NotFoundException("Usuário " + userId + " não encontrado");
             }
             return rowToUser(row);
         }
@@ -38,7 +38,7 @@ public class UserRepository {
             statement.setString(1, email);
             ResultSet row = statement.executeQuery();
             if (!row.next()) {
-                throw new NotFoundException("User not found");
+                throw new NotFoundException("Usuário não encontrado");
             }
             return rowToUser(row);
         }

@@ -9,9 +9,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Database {
-    private String url;
-    private String user;
-    private String password;
+    private final String url;
+    private final String user;
+    private final String password;
 
     public Database(String url, String user, String password) {
         this.url = url;
@@ -26,10 +26,12 @@ public class Database {
     public void createSchema() throws SQLException, IOException {
         String sql;
         try (InputStream input = Database.class.getResourceAsStream("/schema.sql")) {
-            sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-        }
-        try (Connection connection = connect(); Statement statement = connection.createStatement()) {
-            statement.execute(sql);
+            if (input != null) {
+                sql = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+                try (Connection connection = connect(); Statement statement = connection.createStatement()) {
+                    statement.execute(sql);
+                }
+            }
         }
     }
 }

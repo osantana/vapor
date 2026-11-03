@@ -16,7 +16,7 @@ public class Template {
         Template template = new Template();
         try (InputStream input = Template.class.getResourceAsStream("/templates/" + name + ".html")) {
             if (input == null) {
-                throw new IOException("Template not found: " + name);
+                throw new IOException("Template não encontrado: " + name);
             }
             template.text = new String(input.readAllBytes(), StandardCharsets.UTF_8);
         }
@@ -63,7 +63,7 @@ public class Template {
 
     private String resolve(String name) {
         if (!values.containsKey(name)) {
-            throw new IllegalStateException("Template value not set: " + name);
+            throw new IllegalStateException("Valor não definido no template: " + name);
         }
         return values.get(name);
     }

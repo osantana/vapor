@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Config {
-    private Map<String, String> fileValues = new HashMap<>();
+    private final Map<String, String> fileValues = new HashMap<>();
 
     public static Config load() throws IOException {
         Config config = new Config();
@@ -47,7 +47,7 @@ public class Config {
     public String require(String name) {
         String value = get(name, "");
         if (value.isEmpty()) {
-            throw new IllegalStateException("Missing configuration: " + name);
+            throw new IllegalStateException("Configuração ausente: " + name);
         }
         return value;
     }

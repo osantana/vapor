@@ -103,7 +103,7 @@ public class Main {
                 try {
                     views.renderMessage(ctx, "Página não encontrada", "Página não encontrada.");
                 } catch (IOException | SQLException renderFailure) {
-                    ctx.result("Not found");
+                    ctx.result("Página não encontrada");
                 }
             });
         });

@@ -188,7 +188,7 @@ public class CatalogController {
     public void detail(Context ctx) throws IOException, SQLException {
         Game game = catalogRepository.findById(Requests.id(ctx.pathParam("id")));
         if (!canView(ctx, game)) {
-            throw new NotFoundException("Game " + game.getId() + " not found");
+            throw new NotFoundException("Jogo " + game.getId() + " não encontrado");
         }
 
         String genres = "";

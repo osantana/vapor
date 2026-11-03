@@ -54,7 +54,7 @@ public class CartController {
         long userId = Requests.currentUserId(ctx);
         Game game = catalogRepository.findById(Requests.id(Requests.form(ctx, "gameId")));
         if (!game.isApproved()) {
-            throw new NotFoundException("Game " + game.getId() + " not found");
+            throw new NotFoundException("Jogo " + game.getId() + " não encontrado");
         }
         if (libraryRepository.hasGame(userId, game.getId())) {
             Requests.flashError(ctx, "Este jogo já está na sua biblioteca.");
