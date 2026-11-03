@@ -13,7 +13,7 @@ import io.javalin.http.NotFoundResponse;
 // Runs before every request: CSRF protection, login checks and security headers.
 public class Security implements Handler {
     private static final String[] LOGIN_REQUIRED = {
-        "/cart", "/checkout", "/orders", "/refunds", "/library", "/publisher", "/admin"
+        "/cart", "/checkout", "/orders", "/library", "/publisher", "/admin"
     };
 
     @Override

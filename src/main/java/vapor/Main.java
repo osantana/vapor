@@ -10,15 +10,12 @@ import vapor.repository.CartRepository;
 import vapor.repository.CatalogRepository;
 import vapor.repository.LibraryRepository;
 import vapor.repository.OrderRepository;
-import vapor.repository.RefundRepository;
 import vapor.repository.UserRepository;
 import vapor.service.AuthService;
 import vapor.service.CatalogService;
 import vapor.service.CheckoutService;
 import vapor.service.DownloadService;
 import vapor.service.PaymentGateway;
-import vapor.service.RefundPolicy;
-import vapor.service.RefundService;
 import vapor.service.SalesDashboardService;
 import vapor.web.AdminController;
 import vapor.web.AuthController;
@@ -45,15 +42,12 @@ public class Main {
         CartRepository cartRepository = new CartRepository(database);
         OrderRepository orderRepository = new OrderRepository(database);
         LibraryRepository libraryRepository = new LibraryRepository(database);
-        RefundRepository refundRepository = new RefundRepository(database);
 
         PaymentGateway paymentGateway = new PaymentGateway();
         AuthService authService = new AuthService(userRepository);
         CatalogService catalogService = new CatalogService(catalogRepository);
         CheckoutService checkoutService = new CheckoutService(cartRepository, orderRepository,
                 libraryRepository, paymentGateway);
-        RefundService refundService = new RefundService(new RefundPolicy(config.getInt("REFUND_DAYS", 14)),
-                paymentGateway, orderRepository, libraryRepository, refundRepository);
         DownloadService downloadService = new DownloadService(config.require("SECRET_KEY"),
                 libraryRepository, catalogRepository);
         SalesDashboardService salesDashboardService = new SalesDashboardService(orderRepository);
@@ -68,7 +62,7 @@ public class Main {
         CatalogController catalog = new CatalogController(views, catalogRepository, cartRepository,
                 libraryRepository);
         CartController cart = new CartController(views, cartRepository, catalogRepository, libraryRepository);
-        OrderController orders = new OrderController(views, orderRepository, checkoutService, refundService);
+        OrderController orders = new OrderController(views, orderRepository, checkoutService);
         LibraryController library = new LibraryController(views, libraryRepository, catalogRepository,
                 downloadService);
         PublisherController publisher = new PublisherController(views, catalogRepository, catalogService,
@@ -96,7 +90,6 @@ public class Main {
             javalin.routes.post("/cart/remove", ctx -> cart.remove(ctx));
             javalin.routes.post("/checkout", ctx -> orders.checkout(ctx));
             javalin.routes.get("/orders", ctx -> orders.list(ctx));
-            javalin.routes.post("/refunds", ctx -> orders.refund(ctx));
 
             javalin.routes.get("/library", ctx -> library.list(ctx));
             javalin.routes.post("/library/download", ctx -> library.createDownloadLink(ctx));

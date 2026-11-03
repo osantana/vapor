@@ -4,15 +4,14 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import vapor.BusinessRuleException;
 
 public class Cart {
-    private final UUID userId;
+    private final long userId;
     private final List<CartItem> items = new ArrayList<>();
 
-    public Cart(UUID userId) {
+    public Cart(long userId) {
         this.userId = userId;
     }
 
@@ -20,8 +19,7 @@ public class Cart {
         if (contains(game.getId())) {
             throw new BusinessRuleException("error.alreadyInCart");
         }
-        CartItem item = new CartItem(UUID.randomUUID(), game.getId(), game.getTitle(), game.getPrice(),
-                OffsetDateTime.now());
+        CartItem item = new CartItem(game.getId(), game.getTitle(), game.getPrice(), OffsetDateTime.now());
         items.add(item);
         return item;
     }
@@ -30,9 +28,9 @@ public class Cart {
         items.add(item);
     }
 
-    public boolean contains(UUID gameId) {
+    public boolean contains(long gameId) {
         for (CartItem item : items) {
-            if (item.getGameId().equals(gameId)) {
+            if (item.getGameId() == gameId) {
                 return true;
             }
         }
@@ -51,7 +49,7 @@ public class Cart {
         return total;
     }
 
-    public UUID getUserId() {
+    public long getUserId() {
         return userId;
     }
 

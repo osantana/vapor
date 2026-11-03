@@ -45,7 +45,7 @@ public class AdminController {
     }
 
     public void review(Context ctx) throws SQLException {
-        Game game = catalogRepository.findById(Requests.uuid(Requests.form(ctx, "gameId")));
+        Game game = catalogRepository.findById(Requests.id(Requests.form(ctx, "gameId")));
         String decision = Requests.form(ctx, "decision");
         String notes = Requests.form(ctx, "notes");
 

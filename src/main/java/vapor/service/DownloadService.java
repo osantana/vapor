@@ -5,7 +5,6 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.sql.SQLException;
 import java.util.HexFormat;
-import java.util.UUID;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -19,9 +18,9 @@ import vapor.repository.LibraryRepository;
 public class DownloadService {
     private static final long LINK_DURATION_IN_SECONDS = 3600;
 
-    private String secretKey;
-    private LibraryRepository libraryRepository;
-    private CatalogRepository catalogRepository;
+    private final String secretKey;
+    private final LibraryRepository libraryRepository;
+    private final CatalogRepository catalogRepository;
 
     public DownloadService(String secretKey, LibraryRepository libraryRepository,
                            CatalogRepository catalogRepository) {
@@ -30,7 +29,7 @@ public class DownloadService {
         this.catalogRepository = catalogRepository;
     }
 
-    public String generateDownloadUrl(UUID userId, UUID gameId, UUID assetId, long nowInSeconds)
+    public String generateDownloadUrl(long userId, long gameId, long assetId, long nowInSeconds)
             throws SQLException, GeneralSecurityException {
         if (!libraryRepository.hasGame(userId, gameId)) {
             throw new BusinessRuleException("error.notInLibrary");
@@ -42,7 +41,7 @@ public class DownloadService {
                 + "&signature=" + sign(asset.getId(), expires);
     }
 
-    public String resolveDownload(UUID gameId, UUID assetId, long expires, String signature, long nowInSeconds)
+    public String resolveDownload(long gameId, long assetId, long expires, String signature, long nowInSeconds)
             throws SQLException, GeneralSecurityException {
         if (!isValidSignature(assetId, expires, signature, nowInSeconds)) {
             throw new BusinessRuleException("error.downloadLinkInvalid");
@@ -52,7 +51,7 @@ public class DownloadService {
         return asset.getDownloadUrl();
     }
 
-    public String sign(UUID assetId, long expires) throws GeneralSecurityException {
+    public String sign(long assetId, long expires) throws GeneralSecurityException {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
         String content = assetId + ":" + expires;
@@ -60,7 +59,7 @@ public class DownloadService {
         return HexFormat.of().formatHex(signature);
     }
 
-    public boolean isValidSignature(UUID assetId, long expires, String signature, long nowInSeconds)
+    public boolean isValidSignature(long assetId, long expires, String signature, long nowInSeconds)
             throws GeneralSecurityException {
         if (nowInSeconds > expires) {
             return false;

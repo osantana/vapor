@@ -2,7 +2,6 @@ package vapor.service;
 
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 import vapor.BusinessRuleException;
 import vapor.model.Cart;
@@ -16,10 +15,10 @@ import vapor.repository.LibraryRepository;
 import vapor.repository.OrderRepository;
 
 public class CheckoutService {
-    private CartRepository cartRepository;
-    private OrderRepository orderRepository;
-    private LibraryRepository libraryRepository;
-    private PaymentGateway paymentGateway;
+    private final CartRepository cartRepository;
+    private final OrderRepository orderRepository;
+    private final LibraryRepository libraryRepository;
+    private final PaymentGateway paymentGateway;
 
     public CheckoutService(CartRepository cartRepository, OrderRepository orderRepository,
                            LibraryRepository libraryRepository, PaymentGateway paymentGateway) {
@@ -29,20 +28,18 @@ public class CheckoutService {
         this.paymentGateway = paymentGateway;
     }
 
-    public Order checkout(UUID userId, PaymentMethod method, String cardNumber) throws SQLException {
+    public Order checkout(long userId, PaymentMethod method, String cardNumber) throws SQLException {
         Cart cart = cartRepository.findByUser(userId);
         if (cart.isEmpty()) {
             throw new BusinessRuleException("error.emptyCart");
         }
 
-        Order order = new Order(UUID.randomUUID(), userId, cart.total(), method, OrderStatus.PENDING,
-                OffsetDateTime.now());
+        Order order = new Order(0, userId, cart.total(), method, OrderStatus.PENDING, OffsetDateTime.now());
         for (CartItem item : cart.getItems()) {
             if (libraryRepository.hasGame(userId, item.getGameId())) {
                 throw new BusinessRuleException("error.alreadyInLibrary");
             }
-            order.addItem(new OrderItem(UUID.randomUUID(), item.getGameId(), item.getGameTitle(),
-                    item.getUnitPrice(), false));
+            order.addItem(new OrderItem(item.getGameId(), item.getGameTitle(), item.getUnitPrice()));
         }
 
         // A declined payment throws here, before anything is saved, so the cart stays intact.

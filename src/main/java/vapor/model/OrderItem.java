@@ -1,28 +1,19 @@
 package vapor.model;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 public class OrderItem {
-    private UUID id;
-    private UUID gameId;
-    private String gameTitle;
-    private BigDecimal pricePaid;
-    private boolean refunded;
+    private final long gameId;
+    private final String gameTitle;
+    private final BigDecimal pricePaid;
 
-    public OrderItem(UUID id, UUID gameId, String gameTitle, BigDecimal pricePaid, boolean refunded) {
-        this.id = id;
+    public OrderItem(long gameId, String gameTitle, BigDecimal pricePaid) {
         this.gameId = gameId;
         this.gameTitle = gameTitle;
         this.pricePaid = pricePaid;
-        this.refunded = refunded;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public UUID getGameId() {
+    public long getGameId() {
         return gameId;
     }
 
@@ -32,9 +23,5 @@ public class OrderItem {
 
     public BigDecimal getPricePaid() {
         return pricePaid;
-    }
-
-    public boolean isRefunded() {
-        return refunded;
     }
 }

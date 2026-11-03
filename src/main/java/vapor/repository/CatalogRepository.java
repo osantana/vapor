@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import vapor.Database;
 import vapor.NotFoundException;
@@ -24,17 +23,17 @@ public class CatalogRepository {
     private static final String SELECT_GAMES = "SELECT g.*, u.name AS creator_name FROM games g"
             + " JOIN users u ON u.id = g.creator_id";
 
-    private Database database;
+    private final Database database;
 
     public CatalogRepository(Database database) {
         this.database = database;
     }
 
-    public Game findById(UUID gameId) throws SQLException {
+    public Game findById(long gameId) throws SQLException {
         String sql = SELECT_GAMES + " WHERE g.id = ?";
         try (Connection connection = database.connect();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setObject(1, gameId);
+            statement.setLong(1, gameId);
             ResultSet row = statement.executeQuery();
             if (!row.next()) {
                 throw new NotFoundException("Game " + gameId + " not found");
@@ -43,11 +42,11 @@ public class CatalogRepository {
         }
     }
 
-    public List<Game> findByCreator(UUID creatorId) throws SQLException {
+    public List<Game> findByCreator(long creatorId) throws SQLException {
         String sql = SELECT_GAMES + " WHERE g.creator_id = ? ORDER BY g.created_at DESC";
         try (Connection connection = database.connect();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setObject(1, creatorId);
+            statement.setLong(1, creatorId);
             return rowsToGames(connection, statement.executeQuery());
         }
     }
@@ -68,11 +67,11 @@ public class CatalogRepository {
             sql += " AND g.title ILIKE ?";
             parameters.add("%" + filter.getQuery() + "%");
         }
-        if (filter.getGenreId() != null) {
+        if (filter.getGenreId() != 0) {
             sql += " AND g.id IN (SELECT game_id FROM game_genres WHERE genre_id = ?)";
             parameters.add(filter.getGenreId());
         }
-        if (filter.getPlatformId() != null) {
+        if (filter.getPlatformId() != 0) {
             sql += " AND g.id IN (SELECT game_id FROM game_platforms WHERE platform_id = ?)";
             parameters.add(filter.getPlatformId());
         }
@@ -112,24 +111,25 @@ public class CatalogRepository {
     }
 
     public Game insert(Game game) throws SQLException {
-        String sql = "INSERT INTO games (id, creator_id, title, description, system_requirements, cover_url,"
+        String sql = "INSERT INTO games (creator_id, title, description, system_requirements, cover_url,"
                 + " price, release_date, status, review_notes, created_at)"
-                + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
         try (Connection connection = database.connect()) {
             connection.setAutoCommit(false);
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setObject(1, game.getId());
-                statement.setObject(2, game.getCreatorId());
-                statement.setString(3, game.getTitle());
-                statement.setString(4, game.getDescription());
-                statement.setString(5, game.getSystemRequirements());
-                statement.setString(6, game.getCoverUrl());
-                statement.setBigDecimal(7, game.getPrice());
-                statement.setObject(8, game.getReleaseDate());
-                statement.setString(9, game.getStatus().name().toLowerCase());
-                statement.setString(10, game.getReviewNotes());
-                statement.setObject(11, game.getCreatedAt());
-                statement.executeUpdate();
+                statement.setLong(1, game.getCreatorId());
+                statement.setString(2, game.getTitle());
+                statement.setString(3, game.getDescription());
+                statement.setString(4, game.getSystemRequirements());
+                statement.setString(5, game.getCoverUrl());
+                statement.setBigDecimal(6, game.getPrice());
+                statement.setObject(7, game.getReleaseDate());
+                statement.setString(8, game.getStatus().name().toLowerCase());
+                statement.setString(9, game.getReviewNotes());
+                statement.setObject(10, game.getCreatedAt());
+                ResultSet row = statement.executeQuery();
+                row.next();
+                game.setId(row.getLong("id"));
             }
             insertGenres(connection, game);
             insertAssets(connection, game);
@@ -142,8 +142,8 @@ public class CatalogRepository {
         String sql = "INSERT INTO game_genres (game_id, genre_id) VALUES (?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             for (Genre genre : game.getGenres()) {
-                statement.setObject(1, game.getId());
-                statement.setObject(2, genre.getId());
+                statement.setLong(1, game.getId());
+                statement.setLong(2, genre.getId());
                 statement.executeUpdate();
             }
         }
@@ -151,20 +151,19 @@ public class CatalogRepository {
 
     private void insertAssets(Connection connection, Game game) throws SQLException {
         String platformSql = "INSERT INTO game_platforms (game_id, platform_id) VALUES (?, ?)";
-        String assetSql = "INSERT INTO game_assets (id, game_id, platform_id, file_size, download_url)"
-                + " VALUES (?, ?, ?, ?, ?)";
+        String assetSql = "INSERT INTO game_assets (game_id, platform_id, file_size, download_url)"
+                + " VALUES (?, ?, ?, ?)";
         try (PreparedStatement platformStatement = connection.prepareStatement(platformSql);
              PreparedStatement assetStatement = connection.prepareStatement(assetSql)) {
             for (GameAsset asset : game.getAssets()) {
-                platformStatement.setObject(1, game.getId());
-                platformStatement.setObject(2, asset.getPlatformId());
+                platformStatement.setLong(1, game.getId());
+                platformStatement.setLong(2, asset.getPlatformId());
                 platformStatement.executeUpdate();
 
-                assetStatement.setObject(1, asset.getId());
-                assetStatement.setObject(2, game.getId());
-                assetStatement.setObject(3, asset.getPlatformId());
-                assetStatement.setLong(4, asset.getFileSize());
-                assetStatement.setString(5, asset.getDownloadUrl());
+                assetStatement.setLong(1, game.getId());
+                assetStatement.setLong(2, asset.getPlatformId());
+                assetStatement.setLong(3, asset.getFileSize());
+                assetStatement.setString(4, asset.getDownloadUrl());
                 assetStatement.executeUpdate();
             }
         }
@@ -176,7 +175,7 @@ public class CatalogRepository {
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, game.getStatus().name().toLowerCase());
             statement.setString(2, game.getReviewNotes());
-            statement.setObject(3, game.getId());
+            statement.setLong(3, game.getId());
             statement.executeUpdate();
         }
     }
@@ -186,7 +185,7 @@ public class CatalogRepository {
         try (Connection connection = database.connect();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setBigDecimal(1, game.getPrice());
-            statement.setObject(2, game.getId());
+            statement.setLong(2, game.getId());
             statement.executeUpdate();
         }
     }
@@ -197,7 +196,7 @@ public class CatalogRepository {
              Statement statement = connection.createStatement()) {
             ResultSet rows = statement.executeQuery("SELECT * FROM genres ORDER BY name");
             while (rows.next()) {
-                genres.add(new Genre(rows.getObject("id", UUID.class), rows.getString("name")));
+                genres.add(new Genre(rows.getLong("id"), rows.getString("name")));
             }
         }
         return genres;
@@ -209,7 +208,7 @@ public class CatalogRepository {
              Statement statement = connection.createStatement()) {
             ResultSet rows = statement.executeQuery("SELECT * FROM platforms ORDER BY name");
             while (rows.next()) {
-                platforms.add(new Platform(rows.getObject("id", UUID.class), rows.getString("name")));
+                platforms.add(new Platform(rows.getLong("id"), rows.getString("name")));
             }
         }
         return platforms;
@@ -226,8 +225,8 @@ public class CatalogRepository {
     // ponytail: genres and assets cost two extra queries per game; join them in one query if the catalog gets slow
     private Game rowToGame(Connection connection, ResultSet row) throws SQLException {
         Game game = new Game(
-                row.getObject("id", UUID.class),
-                row.getObject("creator_id", UUID.class),
+                row.getLong("id"),
+                row.getLong("creator_id"),
                 row.getString("title"),
                 row.getString("description"),
                 row.getBigDecimal("price"),
@@ -247,10 +246,10 @@ public class CatalogRepository {
         String sql = "SELECT g.* FROM genres g JOIN game_genres gg ON g.id = gg.genre_id"
                 + " WHERE gg.game_id = ? ORDER BY g.name";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setObject(1, game.getId());
+            statement.setLong(1, game.getId());
             ResultSet rows = statement.executeQuery();
             while (rows.next()) {
-                game.addGenre(new Genre(rows.getObject("id", UUID.class), rows.getString("name")));
+                game.addGenre(new Genre(rows.getLong("id"), rows.getString("name")));
             }
         }
     }
@@ -259,14 +258,12 @@ public class CatalogRepository {
         String sql = "SELECT a.*, p.name AS platform_name FROM game_assets a"
                 + " JOIN platforms p ON p.id = a.platform_id WHERE a.game_id = ? ORDER BY p.name";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setObject(1, game.getId());
+            statement.setLong(1, game.getId());
             ResultSet rows = statement.executeQuery();
             while (rows.next()) {
-                Platform platform = new Platform(rows.getObject("platform_id", UUID.class),
-                        rows.getString("platform_name"));
+                Platform platform = new Platform(rows.getLong("platform_id"), rows.getString("platform_name"));
                 game.addAsset(new GameAsset(
-                        rows.getObject("id", UUID.class),
-                        game.getId(),
+                        rows.getLong("id"),
                         platform,
                         rows.getLong("file_size"),
                         rows.getString("download_url")));

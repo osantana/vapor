@@ -1,7 +1,0 @@
-<form class="inline" method="post" action="/refunds">
-    <input type="hidden" name="csrf" value="{{csrf}}">
-    <input type="hidden" name="orderItemId" value="{{orderItemId}}">
-    <input type="text" name="reason" aria-label="{{msg:orders.reason}}" placeholder="{{msg:orders.reason}}"
-           maxlength="500" required>
-    <button>{{msg:orders.requestRefund}}</button>
-</form>

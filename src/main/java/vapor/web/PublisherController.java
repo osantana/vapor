@@ -8,7 +8,6 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import io.javalin.http.Context;
 
@@ -41,7 +40,7 @@ public class PublisherController {
 
     public void dashboard(Context ctx) throws IOException, SQLException {
         Messages messages = views.messages(ctx);
-        UUID userId = Requests.currentUserId(ctx);
+        long userId = Requests.currentUserId(ctx);
 
         String games = "";
         for (Game game : catalogRepository.findByCreator(userId)) {
@@ -77,7 +76,7 @@ public class PublisherController {
     }
 
     public void changePrice(Context ctx) throws SQLException {
-        UUID gameId = Requests.uuid(Requests.form(ctx, "gameId"));
+        long gameId = Requests.id(Requests.form(ctx, "gameId"));
         try {
             BigDecimal price = CatalogService.parsePrice(Requests.form(ctx, "price"));
             catalogService.changePrice(Requests.currentUserId(ctx), gameId, price);
@@ -121,7 +120,7 @@ public class PublisherController {
             // the validation reports the missing release date
         }
 
-        Game game = new Game(UUID.randomUUID(), Requests.currentUserId(ctx), Requests.form(ctx, "title"),
+        Game game = new Game(0, Requests.currentUserId(ctx), Requests.form(ctx, "title"),
                 Requests.form(ctx, "description"), price, releaseDate, GameStatus.PENDING,
                 OffsetDateTime.now());
         game.setSystemRequirements(Requests.form(ctx, "requirements"));
@@ -129,7 +128,7 @@ public class PublisherController {
 
         List<String> chosenGenres = ctx.formParams("genre");
         for (Genre genre : catalogRepository.listGenres()) {
-            if (chosenGenres.contains(genre.getId().toString())) {
+            if (chosenGenres.contains(String.valueOf(genre.getId()))) {
                 game.addGenre(genre);
             }
         }
@@ -137,7 +136,7 @@ public class PublisherController {
             String url = Requests.form(ctx, "url_" + platform.getId());
             if (!url.isEmpty()) {
                 long size = readSize(Requests.form(ctx, "size_" + platform.getId()));
-                game.addAsset(new GameAsset(UUID.randomUUID(), game.getId(), platform, size, url));
+                game.addAsset(new GameAsset(0, platform, size, url));
             }
         }
         return game;
@@ -166,7 +165,7 @@ public class PublisherController {
         String genres = "";
         for (Genre genre : catalogRepository.listGenres()) {
             String checked = "";
-            if (chosenGenres.contains(genre.getId().toString())) {
+            if (chosenGenres.contains(String.valueOf(genre.getId()))) {
                 checked = "checked";
             }
             Template checkbox = views.template(ctx, "game_form_genre");

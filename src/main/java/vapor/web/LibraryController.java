@@ -5,7 +5,6 @@ import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
@@ -80,8 +79,8 @@ public class LibraryController {
     }
 
     public void createDownloadLink(Context ctx) throws SQLException, GeneralSecurityException {
-        UUID gameId = Requests.uuid(Requests.form(ctx, "gameId"));
-        UUID assetId = Requests.uuid(Requests.form(ctx, "assetId"));
+        long gameId = Requests.id(Requests.form(ctx, "gameId"));
+        long assetId = Requests.id(Requests.form(ctx, "assetId"));
         try {
             String link = downloadService.generateDownloadUrl(Requests.currentUserId(ctx), gameId, assetId,
                     Instant.now().getEpochSecond());
@@ -93,8 +92,8 @@ public class LibraryController {
     }
 
     public void download(Context ctx) throws SQLException, GeneralSecurityException {
-        UUID gameId = Requests.uuid(ctx.pathParam("gameId"));
-        UUID assetId = Requests.uuid(ctx.pathParam("assetId"));
+        long gameId = Requests.id(ctx.pathParam("gameId"));
+        long assetId = Requests.id(ctx.pathParam("assetId"));
         long expires;
         try {
             expires = Long.parseLong(Requests.query(ctx, "expires"));

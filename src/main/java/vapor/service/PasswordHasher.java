@@ -1,4 +1,4 @@
-package vapor.model;
+package vapor.service;
 
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;

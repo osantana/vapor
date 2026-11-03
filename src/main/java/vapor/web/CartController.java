@@ -2,7 +2,6 @@ package vapor.web;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.UUID;
 
 import io.javalin.http.Context;
 
@@ -54,8 +53,8 @@ public class CartController {
     }
 
     public void add(Context ctx) throws SQLException {
-        UUID userId = Requests.currentUserId(ctx);
-        Game game = catalogRepository.findById(Requests.uuid(Requests.form(ctx, "gameId")));
+        long userId = Requests.currentUserId(ctx);
+        Game game = catalogRepository.findById(Requests.id(Requests.form(ctx, "gameId")));
         if (!game.isApproved()) {
             throw new NotFoundException("Game " + game.getId() + " not found");
         }
@@ -79,7 +78,7 @@ public class CartController {
     }
 
     public void remove(Context ctx) throws SQLException {
-        UUID gameId = Requests.uuid(Requests.form(ctx, "gameId"));
+        long gameId = Requests.id(Requests.form(ctx, "gameId"));
         cartRepository.removeItem(Requests.currentUserId(ctx), gameId);
         Requests.flash(ctx, "cart.removed");
         ctx.redirect("/cart");

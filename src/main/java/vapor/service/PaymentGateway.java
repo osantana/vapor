@@ -1,6 +1,5 @@
 package vapor.service;
 
-import java.math.BigDecimal;
 import java.util.logging.Logger;
 
 import vapor.BusinessRuleException;
@@ -14,7 +13,7 @@ public class PaymentGateway {
 
     public void charge(Order order, String cardNumber) {
         if (order.getPaymentMethod() == PaymentMethod.PIX) {
-            logger.info("PIX payment approved for order " + order.getId());
+            logger.info("PIX payment approved for order of " + order.getTotal());
             return;
         }
         String digits = cardNumber.replace(" ", "");
@@ -24,10 +23,6 @@ public class PaymentGateway {
         if (digits.endsWith("0000")) {
             throw new BusinessRuleException("error.paymentDeclined");
         }
-        logger.info("Card payment approved for order " + order.getId());
-    }
-
-    public void refund(Order order, BigDecimal amount) {
-        logger.info("Refund of " + amount + " sent for order " + order.getId());
+        logger.info("Card payment approved for order of " + order.getTotal());
     }
 }

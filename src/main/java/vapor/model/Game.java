@@ -5,13 +5,12 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import vapor.NotFoundException;
 
 public class Game {
-    private final UUID id;
-    private final UUID creatorId;
+    private long id;
+    private final long creatorId;
     private String creatorName = "";
     private final String title;
     private final String description;
@@ -25,7 +24,7 @@ public class Game {
     private final List<Genre> genres = new ArrayList<>();
     private final List<GameAsset> assets = new ArrayList<>();
 
-    public Game(UUID id, UUID creatorId, String title, String description, BigDecimal price,
+    public Game(long id, long creatorId, String title, String description, BigDecimal price,
                 LocalDate releaseDate, GameStatus status, OffsetDateTime createdAt) {
         this.id = id;
         this.creatorId = creatorId;
@@ -64,8 +63,8 @@ public class Game {
         return price.signum() == 0;
     }
 
-    public boolean isCreatedBy(UUID userId) {
-        return creatorId.equals(userId);
+    public boolean isCreatedBy(long userId) {
+        return creatorId == userId;
     }
 
     public void addGenre(Genre genre) {
@@ -76,20 +75,24 @@ public class Game {
         assets.add(asset);
     }
 
-    public GameAsset findAsset(UUID assetId) {
+    public GameAsset findAsset(long assetId) {
         for (GameAsset asset : assets) {
-            if (asset.getId().equals(assetId)) {
+            if (asset.getId() == assetId) {
                 return asset;
             }
         }
         throw new NotFoundException("Asset " + assetId + " not found");
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
     }
 
-    public UUID getCreatorId() {
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getCreatorId() {
         return creatorId;
     }
 

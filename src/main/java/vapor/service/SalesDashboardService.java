@@ -2,23 +2,22 @@ package vapor.service;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
 import vapor.model.SalesMetrics;
 import vapor.repository.OrderRepository;
 
 public class SalesDashboardService {
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
 
     public SalesDashboardService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
 
-    public List<SalesMetrics> getMetrics(UUID creatorId) throws SQLException {
+    public List<SalesMetrics> getMetrics(long creatorId) throws SQLException {
         return orderRepository.salesByCreator(creatorId);
     }
 
-    public String exportCsv(UUID creatorId) throws SQLException {
+    public String exportCsv(long creatorId) throws SQLException {
         String csv = "game,units_sold,gross_revenue,net_revenue\n";
         for (SalesMetrics metrics : getMetrics(creatorId)) {
             csv += escape(metrics.getGameTitle()) + ","

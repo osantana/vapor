@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.UUID;
 
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
@@ -80,11 +79,11 @@ public class CatalogController {
         try {
             String genre = Requests.query(ctx, "genre");
             if (!genre.isEmpty()) {
-                filter.setGenreId(UUID.fromString(genre));
+                filter.setGenreId(Long.parseLong(genre));
             }
             String platform = Requests.query(ctx, "platform");
             if (!platform.isEmpty()) {
-                filter.setPlatformId(UUID.fromString(platform));
+                filter.setPlatformId(Long.parseLong(platform));
             }
             String minimum = Requests.query(ctx, "min");
             if (!minimum.isEmpty()) {
@@ -130,8 +129,8 @@ public class CatalogController {
     private String genreOptions(Context ctx, GameFilter filter) throws IOException, SQLException {
         String options = "";
         for (Genre genre : catalogRepository.listGenres()) {
-            boolean selected = genre.getId().equals(filter.getGenreId());
-            options += option(ctx, genre.getId().toString(), genre.getName(), selected);
+            boolean selected = genre.getId() == filter.getGenreId();
+            options += option(ctx, String.valueOf(genre.getId()), genre.getName(), selected);
         }
         return options;
     }
@@ -139,8 +138,8 @@ public class CatalogController {
     private String platformOptions(Context ctx, GameFilter filter) throws IOException, SQLException {
         String options = "";
         for (Platform platform : catalogRepository.listPlatforms()) {
-            boolean selected = platform.getId().equals(filter.getPlatformId());
-            options += option(ctx, platform.getId().toString(), platform.getName(), selected);
+            boolean selected = platform.getId() == filter.getPlatformId();
+            options += option(ctx, String.valueOf(platform.getId()), platform.getName(), selected);
         }
         return options;
     }
@@ -188,7 +187,7 @@ public class CatalogController {
 
     public void detail(Context ctx) throws IOException, SQLException {
         Messages messages = views.messages(ctx);
-        Game game = catalogRepository.findById(Requests.uuid(ctx.pathParam("id")));
+        Game game = catalogRepository.findById(Requests.id(ctx.pathParam("id")));
         if (!canView(ctx, game)) {
             throw new NotFoundException("Game " + game.getId() + " not found");
         }
@@ -231,7 +230,7 @@ public class CatalogController {
         if (!Requests.isLoggedIn(ctx)) {
             return views.template(ctx, "game_action_login").render();
         }
-        UUID userId = Requests.currentUserId(ctx);
+        long userId = Requests.currentUserId(ctx);
         if (libraryRepository.hasGame(userId, game.getId())) {
             return views.template(ctx, "game_action_owned").render();
         }

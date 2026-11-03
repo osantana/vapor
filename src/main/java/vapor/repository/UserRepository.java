@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 import vapor.Database;
 import vapor.NotFoundException;
@@ -13,17 +12,17 @@ import vapor.model.Role;
 import vapor.model.User;
 
 public class UserRepository {
-    private Database database;
+    private final Database database;
 
     public UserRepository(Database database) {
         this.database = database;
     }
 
-    public User findById(UUID userId) throws SQLException {
+    public User findById(long userId) throws SQLException {
         String sql = "SELECT * FROM users WHERE id = ?";
         try (Connection connection = database.connect();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setObject(1, userId);
+            statement.setLong(1, userId);
             ResultSet row = statement.executeQuery();
             if (!row.next()) {
                 throw new NotFoundException("User " + userId + " not found");
@@ -55,20 +54,19 @@ public class UserRepository {
         }
     }
 
-    public User save(User user) throws SQLException {
-        String sql = "INSERT INTO users (id, name, email, password_hash, role, created_at)"
-                + " VALUES (?, ?, ?, ?, ?, ?)"
-                + " ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, email = EXCLUDED.email,"
-                + " password_hash = EXCLUDED.password_hash, role = EXCLUDED.role";
+    public User insert(User user) throws SQLException {
+        String sql = "INSERT INTO users (name, email, password_hash, role, created_at)"
+                + " VALUES (?, ?, ?, ?, ?) RETURNING id";
         try (Connection connection = database.connect();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setObject(1, user.getId());
-            statement.setString(2, user.getName());
-            statement.setString(3, user.getEmail());
-            statement.setString(4, user.getPasswordHash());
-            statement.setString(5, user.getRole().name().toLowerCase());
-            statement.setObject(6, user.getCreatedAt());
-            statement.executeUpdate();
+            statement.setString(1, user.getName());
+            statement.setString(2, user.getEmail());
+            statement.setString(3, user.getPasswordHash());
+            statement.setString(4, user.getRole().name().toLowerCase());
+            statement.setObject(5, user.getCreatedAt());
+            ResultSet row = statement.executeQuery();
+            row.next();
+            user.setId(row.getLong("id"));
         }
         return user;
     }
@@ -79,14 +77,14 @@ public class UserRepository {
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, user.getFailedLogins());
             statement.setObject(2, user.getLockedUntil());
-            statement.setObject(3, user.getId());
+            statement.setLong(3, user.getId());
             statement.executeUpdate();
         }
     }
 
     private User rowToUser(ResultSet row) throws SQLException {
         User user = new User(
-                row.getObject("id", UUID.class),
+                row.getLong("id"),
                 row.getString("name"),
                 row.getString("email"),
                 row.getString("password_hash"),

@@ -1,7 +1,5 @@
 package vapor.web;
 
-import java.util.UUID;
-
 import io.javalin.http.Context;
 
 import vapor.NotFoundException;
@@ -16,15 +14,15 @@ public class Requests {
         return administrator != null && administrator;
     }
 
-    public static UUID currentUserId(Context ctx) {
-        String userId = ctx.sessionAttribute("userId");
-        return UUID.fromString(userId);
+    public static long currentUserId(Context ctx) {
+        Long userId = ctx.sessionAttribute("userId");
+        return userId;
     }
 
-    public static UUID uuid(String text) {
+    public static long id(String text) {
         try {
-            return UUID.fromString(text);
-        } catch (IllegalArgumentException exception) {
+            return Long.parseLong(text);
+        } catch (NumberFormatException exception) {
             throw new NotFoundException("Invalid identifier");
         }
     }

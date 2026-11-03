@@ -68,7 +68,7 @@ public class AuthController {
         }
         // A new session id after login prevents session fixation.
         ctx.req().changeSessionId();
-        ctx.sessionAttribute("userId", user.getId().toString());
+        ctx.sessionAttribute("userId", user.getId());
         ctx.sessionAttribute("userName", user.getName());
         ctx.sessionAttribute("administrator", user.isAdministrator());
         ctx.redirect("/");

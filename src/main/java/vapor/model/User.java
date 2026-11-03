@@ -1,37 +1,27 @@
 package vapor.model;
 
-import java.security.GeneralSecurityException;
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 public class User {
     private static final int MAXIMUM_FAILED_LOGINS = 5;
     private static final int LOCK_MINUTES = 15;
 
-    private UUID id;
-    private String name;
-    private String email;
-    private String passwordHash;
-    private Role role;
-    private OffsetDateTime createdAt;
+    private long id;
+    private final String name;
+    private final String email;
+    private final String passwordHash;
+    private final Role role;
+    private final OffsetDateTime createdAt;
     private int failedLogins = 0;
     private OffsetDateTime lockedUntil;
 
-    public User(UUID id, String name, String email, String passwordHash, Role role, OffsetDateTime createdAt) {
+    public User(long id, String name, String email, String passwordHash, Role role, OffsetDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
         this.createdAt = createdAt;
-    }
-
-    public boolean authenticate(String password) throws GeneralSecurityException {
-        return PasswordHasher.matches(password, passwordHash);
-    }
-
-    public void changePassword(String newPassword) throws GeneralSecurityException {
-        passwordHash = PasswordHasher.hash(newPassword);
     }
 
     public void restoreLoginState(int failedLogins, OffsetDateTime lockedUntil) {
@@ -61,8 +51,12 @@ public class User {
         return role == Role.ADMINISTRATOR;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {

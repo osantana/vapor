@@ -2,14 +2,14 @@ package vapor.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
+// Zero in genreId or platformId means "no filter".
 public class GameFilter {
     public static final int PAGE_SIZE = 20;
 
     private String query = "";
-    private UUID genreId;
-    private UUID platformId;
+    private long genreId = 0;
+    private long platformId = 0;
     private BigDecimal minimumPrice;
     private BigDecimal maximumPrice;
     private LocalDate releasedFrom;
@@ -28,19 +28,19 @@ public class GameFilter {
         this.query = query;
     }
 
-    public UUID getGenreId() {
+    public long getGenreId() {
         return genreId;
     }
 
-    public void setGenreId(UUID genreId) {
+    public void setGenreId(long genreId) {
         this.genreId = genreId;
     }
 
-    public UUID getPlatformId() {
+    public long getPlatformId() {
         return platformId;
     }
 
-    public void setPlatformId(UUID platformId) {
+    public void setPlatformId(long platformId) {
         this.platformId = platformId;
     }
 

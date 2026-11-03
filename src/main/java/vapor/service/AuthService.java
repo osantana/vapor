@@ -3,11 +3,9 @@ package vapor.service;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 import vapor.BusinessRuleException;
 import vapor.NotFoundException;
-import vapor.model.PasswordHasher;
 import vapor.model.Role;
 import vapor.model.User;
 import vapor.repository.UserRepository;
@@ -15,7 +13,7 @@ import vapor.repository.UserRepository;
 public class AuthService {
     private static final int MAXIMUM_PASSWORD_LENGTH = 128;
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public AuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -72,9 +70,8 @@ public class AuthService {
         if (userRepository.emailExists(cleanEmail)) {
             throw new BusinessRuleException("error.emailTaken");
         }
-        User user = new User(UUID.randomUUID(), cleanName, cleanEmail, PasswordHasher.hash(password), role,
-                OffsetDateTime.now());
-        return userRepository.save(user);
+        User user = new User(0, cleanName, cleanEmail, PasswordHasher.hash(password), role, OffsetDateTime.now());
+        return userRepository.insert(user);
     }
 
     public User login(String email, String password) throws SQLException, GeneralSecurityException {
@@ -91,7 +88,7 @@ public class AuthService {
         if (user.isLocked(now)) {
             throw new BusinessRuleException("error.accountLocked");
         }
-        if (!user.authenticate(password)) {
+        if (!PasswordHasher.matches(password, user.getPasswordHash())) {
             user.registerFailedLogin(now);
             userRepository.updateLoginState(user);
             throw new BusinessRuleException("error.invalidCredentials");

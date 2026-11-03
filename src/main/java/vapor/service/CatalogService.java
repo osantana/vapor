@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import vapor.BusinessRuleException;
 import vapor.NotFoundException;
@@ -15,7 +14,7 @@ import vapor.repository.CatalogRepository;
 public class CatalogService {
     private static final BigDecimal MAXIMUM_PRICE = new BigDecimal("99999999.99");
 
-    private CatalogRepository catalogRepository;
+    private final CatalogRepository catalogRepository;
 
     public CatalogService(CatalogRepository catalogRepository) {
         this.catalogRepository = catalogRepository;
@@ -71,7 +70,7 @@ public class CatalogService {
         return catalogRepository.insert(game);
     }
 
-    public Game changePrice(UUID userId, UUID gameId, BigDecimal price) throws SQLException {
+    public Game changePrice(long userId, long gameId, BigDecimal price) throws SQLException {
         Game game = catalogRepository.findById(gameId);
         if (!game.isCreatedBy(userId)) {
             throw new NotFoundException("Game " + gameId + " not found");

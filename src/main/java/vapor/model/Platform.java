@@ -1,17 +1,15 @@
 package vapor.model;
 
-import java.util.UUID;
-
 public class Platform {
-    private UUID id;
-    private String name;
+    private final long id;
+    private final String name;
 
-    public Platform(UUID id, String name) {
+    public Platform(long id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public UUID getId() {
+    public long getId() {
         return id;
     }
 

@@ -3,7 +3,6 @@ package vapor.web;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
@@ -14,20 +13,16 @@ import vapor.model.OrderItem;
 import vapor.model.PaymentMethod;
 import vapor.repository.OrderRepository;
 import vapor.service.CheckoutService;
-import vapor.service.RefundService;
 
 public class OrderController {
-    private Views views;
-    private OrderRepository orderRepository;
-    private CheckoutService checkoutService;
-    private RefundService refundService;
+    private final Views views;
+    private final OrderRepository orderRepository;
+    private final CheckoutService checkoutService;
 
-    public OrderController(Views views, OrderRepository orderRepository, CheckoutService checkoutService,
-                           RefundService refundService) {
+    public OrderController(Views views, OrderRepository orderRepository, CheckoutService checkoutService) {
         this.views = views;
         this.orderRepository = orderRepository;
         this.checkoutService = checkoutService;
-        this.refundService = refundService;
     }
 
     public void checkout(Context ctx) throws SQLException {
@@ -41,7 +36,7 @@ public class OrderController {
             ctx.redirect("/cart");
             return;
         }
-        Requests.flash(ctx, "order.confirmed", order.getId().toString());
+        Requests.flash(ctx, "order.confirmed", String.valueOf(order.getId()));
         ctx.redirect("/orders");
     }
 
@@ -80,7 +75,6 @@ public class OrderController {
             Template row = views.template(ctx, "order_item");
             row.set("title", item.getGameTitle());
             row.set("price", Format.price(item.getPricePaid(), messages));
-            row.setHtml("refund", renderRefund(ctx, item));
             items += row.render();
         }
         Template template = views.template(ctx, "order");
@@ -90,26 +84,5 @@ public class OrderController {
         template.set("total", Format.money(order.getTotal()));
         template.setHtml("items", items);
         return template.render();
-    }
-
-    private String renderRefund(Context ctx, OrderItem item) throws IOException {
-        if (item.isRefunded()) {
-            return views.template(ctx, "order_refunded").render();
-        }
-        return views.template(ctx, "order_refund_form").set("orderItemId", item.getId()).render();
-    }
-
-    public void refund(Context ctx) throws SQLException {
-        UUID orderItemId = Requests.uuid(Requests.form(ctx, "orderItemId"));
-        String reason = Requests.form(ctx, "reason");
-        try {
-            refundService.request(Requests.currentUserId(ctx), orderItemId, reason);
-        } catch (BusinessRuleException exception) {
-            Requests.flashError(ctx, exception.getMessageKey());
-            ctx.redirect("/orders");
-            return;
-        }
-        Requests.flash(ctx, "refund.approved");
-        ctx.redirect("/orders");
     }
 }

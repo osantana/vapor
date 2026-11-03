@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import vapor.model.Cart;
 import vapor.model.CartItem;
@@ -29,11 +28,11 @@ public class DemoData {
     private static final String PASSWORD = "demo12345";
     private static final long MEGABYTE = 1024 * 1024;
 
-    private UserRepository userRepository;
-    private CatalogRepository catalogRepository;
-    private CartRepository cartRepository;
-    private AuthService authService;
-    private CheckoutService checkoutService;
+    private final UserRepository userRepository;
+    private final CatalogRepository catalogRepository;
+    private final CartRepository cartRepository;
+    private final AuthService authService;
+    private final CheckoutService checkoutService;
 
     public DemoData(UserRepository userRepository, CatalogRepository catalogRepository,
                     CartRepository cartRepository, AuthService authService, CheckoutService checkoutService) {
@@ -86,7 +85,7 @@ public class DemoData {
     private Game game(User publisher, String title, String description, String price, String releaseDate,
                       GameStatus status, int coverSeed, String[] genreNames, String[] platformNames)
             throws SQLException {
-        Game game = new Game(UUID.randomUUID(), publisher.getId(), title, description, new BigDecimal(price),
+        Game game = new Game(0, publisher.getId(), title, description, new BigDecimal(price),
                 LocalDate.parse(releaseDate), status, OffsetDateTime.now().minusDays(coverSeed));
         game.setSystemRequirements("OS: 64-bit\nMemory: 8 GB RAM\nStorage: 2 GB available space");
         game.setCoverUrl("https://picsum.photos/seed/vapor" + coverSeed + "/300/400");
@@ -97,8 +96,8 @@ public class DemoData {
         }
         for (Platform platform : catalogRepository.listPlatforms()) {
             if (List.of(platformNames).contains(platform.getName())) {
-                game.addAsset(new GameAsset(UUID.randomUUID(), game.getId(), platform, 1500 * MEGABYTE,
-                        "https://example.com/downloads/" + game.getId() + "/" + platform.getName() + ".zip"));
+                game.addAsset(new GameAsset(0, platform, 1500 * MEGABYTE,
+                        "https://example.com/downloads/" + platform.getName() + ".zip"));
             }
         }
         return catalogRepository.insert(game);
