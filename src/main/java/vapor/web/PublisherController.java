@@ -39,18 +39,17 @@ public class PublisherController {
     }
 
     public void dashboard(Context ctx) throws IOException, SQLException {
-        Messages messages = views.messages(ctx);
         long userId = Requests.currentUserId(ctx);
 
-        String games = "";
+        StringBuilder games = new StringBuilder();
         for (Game game : catalogRepository.findByCreator(userId)) {
             Template row = views.template(ctx, "publisher_game");
             row.set("id", game.getId());
             row.set("title", game.getTitle());
-            row.set("status", messages.get("status." + game.getStatus().name().toLowerCase()));
+            row.set("status", game.getStatus().getLabel());
             row.set("notes", game.getReviewNotes());
             row.set("price", game.getPrice());
-            games += row.render();
+            games.append(row.render());
         }
 
         String sales = "";
@@ -64,9 +63,9 @@ public class PublisherController {
         }
 
         Template page = views.template(ctx, "publisher");
-        page.setHtml("games", games);
+        page.setHtml("games", games.toString());
         page.setHtml("sales", sales);
-        views.render(ctx, messages.get("publisher.title"), page.render());
+        views.render(ctx, "Painel do publicador", page.render());
     }
 
     public void changePrice(Context ctx) throws SQLException {
@@ -75,11 +74,11 @@ public class PublisherController {
             BigDecimal price = CatalogService.parsePrice(Requests.form(ctx, "price"));
             catalogService.changePrice(Requests.currentUserId(ctx), gameId, price);
         } catch (BusinessRuleException exception) {
-            Requests.flashError(ctx, exception.getMessageKey());
+            Requests.flashError(ctx, exception.getMessage());
             ctx.redirect("/publisher");
             return;
         }
-        Requests.flash(ctx, "publisher.priceChanged");
+        Requests.flash(ctx, "Preço alterado.");
         ctx.redirect("/publisher");
     }
 
@@ -96,7 +95,7 @@ public class PublisherController {
             return;
         }
         catalogService.registerGame(game);
-        Requests.flash(ctx, "publisher.gameSubmitted");
+        Requests.flash(ctx, "Jogo enviado para análise.");
         ctx.redirect("/publisher");
     }
 
@@ -105,7 +104,7 @@ public class PublisherController {
         try {
             price = CatalogService.parsePrice(Requests.form(ctx, "price"));
         } catch (BusinessRuleException exception) {
-            errors.add(exception.getMessageKey());
+            errors.add(exception.getMessage());
         }
         LocalDate releaseDate = null;
         try {
@@ -146,13 +145,11 @@ public class PublisherController {
     }
 
     private void renderGameForm(Context ctx, List<String> errors) throws IOException, SQLException {
-        Messages messages = views.messages(ctx);
-
         String errorItems = "";
         for (String error : errors) {
             errorItems += views.template(ctx, "flash")
                     .set("kind", "error")
-                    .set("text", messages.get(error))
+                    .set("text", error)
                     .render();
         }
 
@@ -190,6 +187,6 @@ public class PublisherController {
         page.set("releaseDate", Requests.form(ctx, "releaseDate"));
         page.setHtml("genres", genres);
         page.setHtml("platforms", platforms);
-        views.render(ctx, messages.get("gameForm.title"), page.render());
+        views.render(ctx, "Publicar jogo", page.render());
     }
 }

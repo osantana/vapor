@@ -22,7 +22,6 @@ services:
       DATABASE_URL: jdbc:postgresql://db:5432/vapor
       DATABASE_USER: ${DATABASE_USER:-vapor}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-vapor-local}
-      SECRET_KEY: ${SECRET_KEY:-local-development-secret-key}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
       DEMO_DATA: ${DEMO_DATA:-true}

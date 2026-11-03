@@ -4,11 +4,10 @@
     <td>{{notes}}</td>
     <td>
         <form class="inline" method="post" action="/publisher/price">
-            <input type="hidden" name="csrf" value="{{csrf}}">
             <input type="hidden" name="gameId" value="{{id}}">
             <input type="text" inputmode="decimal" name="price" value="{{price}}"
-                   aria-label="{{msg:game.price}}" required>
-            <button>{{msg:publisher.changePrice}}</button>
+                   aria-label="Preço" required>
+            <button>Alterar preço</button>
         </form>
     </td>
 </tr>

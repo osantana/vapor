@@ -32,11 +32,11 @@ public class OrderController {
         try {
             order = checkoutService.checkout(Requests.currentUserId(ctx), method, cardNumber);
         } catch (BusinessRuleException exception) {
-            Requests.flashError(ctx, exception.getMessageKey());
+            Requests.flashError(ctx, exception.getMessage());
             ctx.redirect("/cart");
             return;
         }
-        Requests.flash(ctx, "order.confirmed", String.valueOf(order.getId()));
+        Requests.flash(ctx, "Compra confirmada. Número do pedido: " + order.getId());
         ctx.redirect("/orders");
     }
 
@@ -52,35 +52,33 @@ public class OrderController {
     }
 
     public void list(Context ctx) throws IOException, SQLException {
-        Messages messages = views.messages(ctx);
         List<Order> orders = orderRepository.findByUser(Requests.currentUserId(ctx));
         if (orders.isEmpty()) {
-            String body = views.template(ctx, "message").set("text", messages.get("orders.empty")).render();
-            views.render(ctx, messages.get("orders.title"), body);
+            views.renderMessage(ctx, "Pedidos", "Você ainda não tem pedidos.");
             return;
         }
 
         String rendered = "";
         for (Order order : orders) {
-            rendered += renderOrder(ctx, order, messages);
+            rendered += renderOrder(ctx, order);
         }
         Template page = views.template(ctx, "orders");
         page.setHtml("orders", rendered);
-        views.render(ctx, messages.get("orders.title"), page.render());
+        views.render(ctx, "Pedidos", page.render());
     }
 
-    private String renderOrder(Context ctx, Order order, Messages messages) throws IOException {
+    private String renderOrder(Context ctx, Order order) throws IOException {
         String items = "";
         for (OrderItem item : order.getItems()) {
             Template row = views.template(ctx, "order_item");
             row.set("title", item.getGameTitle());
-            row.set("price", Format.price(item.getPricePaid(), messages));
+            row.set("price", Format.price(item.getPricePaid()));
             items += row.render();
         }
         Template template = views.template(ctx, "order");
         template.set("id", order.getId());
         template.set("date", Format.dateTime(order.getCreatedAt()));
-        template.set("method", messages.get("payment." + order.getPaymentMethod().name().toLowerCase()));
+        template.set("method", order.getPaymentMethod().getLabel());
         template.set("total", Format.money(order.getTotal()));
         template.setHtml("items", items);
         return template.render();

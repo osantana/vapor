@@ -1,14 +1,8 @@
 package vapor;
 
+// The message is shown to the user as it is.
 public class BusinessRuleException extends RuntimeException {
-    private String messageKey;
-
-    public BusinessRuleException(String messageKey) {
-        super(messageKey);
-        this.messageKey = messageKey;
-    }
-
-    public String getMessageKey() {
-        return messageKey;
+    public BusinessRuleException(String message) {
+        super(message);
     }
 }

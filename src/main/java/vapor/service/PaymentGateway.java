@@ -18,10 +18,10 @@ public class PaymentGateway {
         }
         String digits = cardNumber.replace(" ", "");
         if (digits.length() < 13 || digits.length() > 19 || !isAllDigits(digits)) {
-            throw new BusinessRuleException("error.invalidCard");
+            throw new BusinessRuleException("Informe um número de cartão válido.");
         }
         if (digits.endsWith("0000")) {
-            throw new BusinessRuleException("error.paymentDeclined");
+            throw new BusinessRuleException("Pagamento recusado. Seu carrinho foi mantido, tente novamente.");
         }
         logger.info("Card payment approved for order of " + order.getTotal());
     }

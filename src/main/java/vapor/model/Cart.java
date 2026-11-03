@@ -17,7 +17,7 @@ public class Cart {
 
     public CartItem addItem(Game game) {
         if (contains(game.getId())) {
-            throw new BusinessRuleException("error.alreadyInCart");
+            throw new BusinessRuleException("Este jogo já está no seu carrinho.");
         }
         CartItem item = new CartItem(game.getId(), game.getTitle(), game.getPrice(), OffsetDateTime.now());
         items.add(item);

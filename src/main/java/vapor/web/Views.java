@@ -8,26 +8,18 @@ import io.javalin.http.Context;
 import vapor.repository.CartRepository;
 
 public class Views {
-    private CartRepository cartRepository;
+    private final CartRepository cartRepository;
 
     public Views(CartRepository cartRepository) {
         this.cartRepository = cartRepository;
     }
 
-    public Messages messages(Context ctx) {
-        return Messages.forLanguage(language(ctx));
-    }
-
     public Template template(Context ctx, String name) throws IOException {
-        Template template = Template.load(name, messages(ctx));
-        String csrf = ctx.sessionAttribute("csrf");
-        template.set("csrf", csrf);
-        return template;
+        return Template.load(name);
     }
 
     public void render(Context ctx, String title, String body) throws IOException, SQLException {
         Template layout = template(ctx, "layout");
-        layout.set("language", language(ctx).replace("_", "-"));
         layout.set("title", title);
         layout.setHtml("nav", nav(ctx));
         layout.setHtml("flash", flash(ctx));
@@ -35,10 +27,9 @@ public class Views {
         ctx.html(layout.render());
     }
 
-    public void renderMessage(Context ctx, String messageKey) throws IOException, SQLException {
-        String text = messages(ctx).get(messageKey);
+    public void renderMessage(Context ctx, String title, String text) throws IOException, SQLException {
         String body = template(ctx, "message").set("text", text).render();
-        render(ctx, text, body);
+        render(ctx, title, body);
     }
 
     private String nav(Context ctx) throws IOException, SQLException {
@@ -57,33 +48,17 @@ public class Views {
         return nav.render();
     }
 
+    // The flash message is shown once, on the next page the user sees.
     private String flash(Context ctx) throws IOException {
-        String flashKey = ctx.sessionAttribute("flash");
-        if (flashKey == null) {
+        String text = ctx.sessionAttribute("flash");
+        if (text == null) {
             return "";
         }
-        String argument = ctx.sessionAttribute("flashArgument");
-        Boolean error = ctx.sessionAttribute("flashError");
-        String kind = "success";
-        if (error) {
-            kind = "error";
-        }
+        String kind = ctx.sessionAttribute("flashKind");
         ctx.sessionAttribute("flash", null);
         Template flash = template(ctx, "flash");
         flash.set("kind", kind);
-        flash.set("text", messages(ctx).get(flashKey, argument));
+        flash.set("text", text);
         return flash.render();
-    }
-
-    private String language(Context ctx) {
-        String chosen = ctx.sessionAttribute("language");
-        if (chosen != null) {
-            return chosen;
-        }
-        String accepted = ctx.header("Accept-Language");
-        if (accepted != null && accepted.toLowerCase().startsWith("pt")) {
-            return "pt_BR";
-        }
-        return "en";
     }
 }

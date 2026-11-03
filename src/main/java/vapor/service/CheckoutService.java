@@ -31,13 +31,13 @@ public class CheckoutService {
     public Order checkout(long userId, PaymentMethod method, String cardNumber) throws SQLException {
         Cart cart = cartRepository.findByUser(userId);
         if (cart.isEmpty()) {
-            throw new BusinessRuleException("error.emptyCart");
+            throw new BusinessRuleException("Seu carrinho está vazio.");
         }
 
         Order order = new Order(0, userId, cart.total(), method, OrderStatus.PENDING, OffsetDateTime.now());
         for (CartItem item : cart.getItems()) {
             if (libraryRepository.hasGame(userId, item.getGameId())) {
-                throw new BusinessRuleException("error.alreadyInLibrary");
+                throw new BusinessRuleException("Este jogo já está na sua biblioteca.");
             }
             order.addItem(new OrderItem(item.getGameId(), item.getGameTitle(), item.getUnitPrice()));
         }

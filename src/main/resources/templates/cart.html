@@ -1,9 +1,9 @@
-<h1>{{msg:cart.title}}</h1>
+<h1>Carrinho</h1>
 <table>
     <thead>
     <tr>
-        <th>{{msg:cart.game}}</th>
-        <th>{{msg:game.price}}</th>
+        <th>Jogo</th>
+        <th>Preço</th>
         <th></th>
     </tr>
     </thead>
@@ -12,23 +12,22 @@
     </tbody>
     <tfoot>
     <tr>
-        <th>{{msg:cart.total}}</th>
+        <th>Total</th>
         <th colspan="2">{{total}}</th>
     </tr>
     </tfoot>
 </table>
-<h2>{{msg:cart.payment}}</h2>
+<h2>Pagamento</h2>
 <form class="stack" method="post" action="/checkout">
-    <input type="hidden" name="csrf" value="{{csrf}}">
     <label>
-        <input type="radio" name="paymentMethod" value="pix" checked> {{msg:payment.pix}}
+        <input type="radio" name="paymentMethod" value="pix" checked> PIX
     </label>
     <label>
-        <input type="radio" name="paymentMethod" value="credit_card"> {{msg:payment.credit_card}}
+        <input type="radio" name="paymentMethod" value="credit_card"> Cartão de crédito
     </label>
-    <label>{{msg:cart.cardNumber}}
+    <label>Número do cartão
         <input type="text" inputmode="numeric" name="cardNumber" autocomplete="off" maxlength="23">
-        <small>{{msg:cart.cardHint}}</small>
+        <small>Apenas para pagamento com cartão de crédito.</small>
     </label>
-    <button>{{msg:cart.confirm}}</button>
+    <button>Confirmar compra</button>
 </form>

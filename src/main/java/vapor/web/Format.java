@@ -15,9 +15,9 @@ public class Format {
         return NumberFormat.getCurrencyInstance(Locale.of("pt", "BR")).format(amount);
     }
 
-    public static String price(BigDecimal amount, Messages messages) {
+    public static String price(BigDecimal amount) {
         if (amount.signum() == 0) {
-            return messages.get("game.free");
+            return "Gratuito";
         }
         return money(amount);
     }

@@ -11,8 +11,8 @@ import vapor.model.Game;
 import vapor.repository.CatalogRepository;
 
 public class AdminController {
-    private Views views;
-    private CatalogRepository catalogRepository;
+    private final Views views;
+    private final CatalogRepository catalogRepository;
 
     public AdminController(Views views, CatalogRepository catalogRepository) {
         this.views = views;
@@ -20,11 +20,9 @@ public class AdminController {
     }
 
     public void queue(Context ctx) throws IOException, SQLException {
-        Messages messages = views.messages(ctx);
         List<Game> pending = catalogRepository.listPending();
         if (pending.isEmpty()) {
-            String body = views.template(ctx, "message").set("text", messages.get("admin.empty")).render();
-            views.render(ctx, messages.get("admin.title"), body);
+            views.renderMessage(ctx, "Jogos em análise", "Nenhum jogo aguardando análise.");
             return;
         }
 
@@ -35,13 +33,13 @@ public class AdminController {
             row.set("title", game.getTitle());
             row.set("publisher", game.getCreatorName());
             row.set("description", game.getDescription());
-            row.set("price", Format.price(game.getPrice(), messages));
+            row.set("price", Format.price(game.getPrice()));
             row.set("notes", game.getReviewNotes());
             games += row.render();
         }
         Template page = views.template(ctx, "admin");
         page.setHtml("games", games);
-        views.render(ctx, messages.get("admin.title"), page.render());
+        views.render(ctx, "Jogos em análise", page.render());
     }
 
     public void review(Context ctx) throws SQLException {
@@ -50,7 +48,7 @@ public class AdminController {
         String notes = Requests.form(ctx, "notes");
 
         if (!decision.equals("approve") && notes.isEmpty()) {
-            Requests.flashError(ctx, "error.notesRequired");
+            Requests.flashError(ctx, "Informe as notas para o publicador.");
             ctx.redirect("/admin");
             return;
         }
@@ -67,7 +65,7 @@ public class AdminController {
             throw new BadRequestResponse();
         }
         catalogRepository.updateReview(game);
-        Requests.flash(ctx, "admin.reviewed");
+        Requests.flash(ctx, "Revisão salva.");
         ctx.redirect("/admin");
     }
 }

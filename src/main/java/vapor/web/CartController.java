@@ -15,10 +15,10 @@ import vapor.repository.CatalogRepository;
 import vapor.repository.LibraryRepository;
 
 public class CartController {
-    private Views views;
-    private CartRepository cartRepository;
-    private CatalogRepository catalogRepository;
-    private LibraryRepository libraryRepository;
+    private final Views views;
+    private final CartRepository cartRepository;
+    private final CatalogRepository catalogRepository;
+    private final LibraryRepository libraryRepository;
 
     public CartController(Views views, CartRepository cartRepository, CatalogRepository catalogRepository,
                           LibraryRepository libraryRepository) {
@@ -29,11 +29,9 @@ public class CartController {
     }
 
     public void show(Context ctx) throws IOException, SQLException {
-        Messages messages = views.messages(ctx);
         Cart cart = cartRepository.findByUser(Requests.currentUserId(ctx));
         if (cart.isEmpty()) {
-            String body = views.template(ctx, "message").set("text", messages.get("cart.empty")).render();
-            views.render(ctx, messages.get("cart.title"), body);
+            views.renderMessage(ctx, "Carrinho", "Seu carrinho está vazio.");
             return;
         }
 
@@ -42,14 +40,14 @@ public class CartController {
             Template row = views.template(ctx, "cart_item");
             row.set("gameId", item.getGameId());
             row.set("title", item.getGameTitle());
-            row.set("price", Format.price(item.getUnitPrice(), messages));
+            row.set("price", Format.price(item.getUnitPrice()));
             items += row.render();
         }
 
         Template page = views.template(ctx, "cart");
         page.setHtml("items", items);
         page.set("total", Format.money(cart.total()));
-        views.render(ctx, messages.get("cart.title"), page.render());
+        views.render(ctx, "Carrinho", page.render());
     }
 
     public void add(Context ctx) throws SQLException {
@@ -59,7 +57,7 @@ public class CartController {
             throw new NotFoundException("Game " + game.getId() + " not found");
         }
         if (libraryRepository.hasGame(userId, game.getId())) {
-            Requests.flashError(ctx, "error.alreadyInLibrary");
+            Requests.flashError(ctx, "Este jogo já está na sua biblioteca.");
             ctx.redirect("/games/" + game.getId());
             return;
         }
@@ -69,18 +67,18 @@ public class CartController {
             CartItem item = cart.addItem(game);
             cartRepository.addItem(userId, item);
         } catch (BusinessRuleException exception) {
-            Requests.flashError(ctx, exception.getMessageKey());
+            Requests.flashError(ctx, exception.getMessage());
             ctx.redirect("/games/" + game.getId());
             return;
         }
-        Requests.flash(ctx, "cart.added");
+        Requests.flash(ctx, "Jogo adicionado ao carrinho.");
         ctx.redirect("/cart");
     }
 
     public void remove(Context ctx) throws SQLException {
         long gameId = Requests.id(Requests.form(ctx, "gameId"));
         cartRepository.removeItem(Requests.currentUserId(ctx), gameId);
-        Requests.flash(ctx, "cart.removed");
+        Requests.flash(ctx, "Jogo removido do carrinho.");
         ctx.redirect("/cart");
     }
 }

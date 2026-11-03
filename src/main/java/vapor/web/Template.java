@@ -6,16 +6,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-// Minimal template: replaces {{name}} with a value and {{msg:key}} with a translated message.
+// Minimal template: replaces {{name}} with an escaped value.
 public class Template {
     private String text;
-    private Messages messages;
-    private Map<String, String> values = new HashMap<>();
+    private final Map<String, String> values = new HashMap<>();
 
     // ponytail: the file is read on every request; cache the text in a map if it gets slow
-    public static Template load(String name, Messages messages) throws IOException {
+    public static Template load(String name) throws IOException {
         Template template = new Template();
-        template.messages = messages;
         try (InputStream input = Template.class.getResourceAsStream("/templates/" + name + ".html")) {
             if (input == null) {
                 throw new IOException("Template not found: " + name);
@@ -43,9 +41,8 @@ public class Template {
     }
 
     // Only for HTML that was already rendered by another template.
-    public Template setHtml(String name, String html) {
+    public void setHtml(String name, String html) {
         values.put(name, html);
-        return this;
     }
 
     public String render() {
@@ -58,16 +55,13 @@ public class Template {
                 return output.toString();
             }
             int end = text.indexOf("}}", start);
-            output.append(text.substring(position, start));
+            output.append(text, position, start);
             output.append(resolve(text.substring(start + 2, end).trim()));
             position = end + 2;
         }
     }
 
     private String resolve(String name) {
-        if (name.startsWith("msg:")) {
-            return escape(messages.get(name.substring(4)));
-        }
         if (!values.containsKey(name)) {
             throw new IllegalStateException("Template value not set: " + name);
         }

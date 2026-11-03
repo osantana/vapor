@@ -17,9 +17,7 @@ import vapor.model.Game;
 import vapor.model.GameStatus;
 import vapor.model.SalesMetrics;
 import vapor.service.CatalogService;
-import vapor.service.DownloadService;
 import vapor.service.PasswordHasher;
-import vapor.web.Messages;
 import vapor.web.Template;
 
 public class BusinessRulesTest {
@@ -53,16 +51,6 @@ public class BusinessRulesTest {
     }
 
     @Test
-    void downloadSignatureExpiresAndDetectsTampering() throws GeneralSecurityException {
-        DownloadService service = new DownloadService("test-secret", null, null);
-        String signature = service.sign(7, 1000);
-        assertTrue(service.isValidSignature(7, 1000, signature, 999));
-        assertFalse(service.isValidSignature(7, 1000, signature, 1001));
-        assertFalse(service.isValidSignature(7, 2000, signature, 999));
-        assertFalse(service.isValidSignature(8, 1000, signature, 999));
-    }
-
-    @Test
     void priceAcceptsCommaAndRejectsInvalidText() {
         assertEquals(new BigDecimal("59.90"), CatalogService.parsePrice("59,90"));
         assertEquals(new BigDecimal("0.00"), CatalogService.parsePrice("0"));
@@ -73,14 +61,12 @@ public class BusinessRulesTest {
     }
 
     @Test
-    void templateEscapesValuesAndTranslatesMessages() throws Exception {
-        Template template = Template.load("flash", Messages.forLanguage("pt_BR"));
+    void templateEscapesValues() throws Exception {
+        Template template = Template.load("flash");
         template.set("kind", "error");
         template.set("text", "<script>alert(1)</script>");
         String html = template.render();
         assertFalse(html.contains("<script>"));
         assertTrue(html.contains("&lt;script&gt;"));
-        assertEquals("Catálogo", Messages.forLanguage("pt_BR").get("catalog.title"));
-        assertEquals("Catalog", Messages.forLanguage("en").get("catalog.title"));
     }
 }

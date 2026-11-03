@@ -35,16 +35,16 @@ public class AuthService {
         String cleanName = name.trim();
         String cleanEmail = normalize(email);
         if (cleanName.isEmpty() || cleanName.length() > 120) {
-            throw new BusinessRuleException("error.invalidName");
+            throw new BusinessRuleException("Informe um nome de exibição com até 120 caracteres.");
         }
         if (cleanEmail.isEmpty() || cleanEmail.length() > 254) {
-            throw new BusinessRuleException("error.emailRequired");
+            throw new BusinessRuleException("Informe um e-mail.");
         }
         if (password.isEmpty()) {
-            throw new BusinessRuleException("error.passwordRequired");
+            throw new BusinessRuleException("Informe uma senha.");
         }
         if (userRepository.emailExists(cleanEmail)) {
-            throw new BusinessRuleException("error.emailTaken");
+            throw new BusinessRuleException("Este e-mail já está cadastrado.");
         }
         User user = new User(0, cleanName, cleanEmail, PasswordHasher.hash(password), role, OffsetDateTime.now());
         return userRepository.insert(user);
@@ -55,10 +55,10 @@ public class AuthService {
         try {
             user = userRepository.findByEmail(normalize(email));
         } catch (NotFoundException exception) {
-            throw new BusinessRuleException("error.invalidCredentials");
+            throw new BusinessRuleException("E-mail ou senha inválidos.");
         }
         if (!PasswordHasher.matches(password, user.getPasswordHash())) {
-            throw new BusinessRuleException("error.invalidCredentials");
+            throw new BusinessRuleException("E-mail ou senha inválidos.");
         }
         return user;
     }

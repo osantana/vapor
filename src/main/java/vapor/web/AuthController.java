@@ -11,8 +11,8 @@ import vapor.model.User;
 import vapor.service.AuthService;
 
 public class AuthController {
-    private Views views;
-    private AuthService authService;
+    private final Views views;
+    private final AuthService authService;
 
     public AuthController(Views views, AuthService authService) {
         this.views = views;
@@ -33,11 +33,11 @@ public class AuthController {
         try {
             authService.register(name, email, password);
         } catch (BusinessRuleException exception) {
-            Requests.flashError(ctx, exception.getMessageKey());
+            Requests.flashError(ctx, exception.getMessage());
             renderRegister(ctx, name, email);
             return;
         }
-        Requests.flash(ctx, "register.success");
+        Requests.flash(ctx, "Conta criada. Entre para continuar.");
         ctx.redirect("/login");
     }
 
@@ -45,7 +45,7 @@ public class AuthController {
         Template page = views.template(ctx, "register");
         page.set("name", name);
         page.set("email", email);
-        views.render(ctx, views.messages(ctx).get("register.title"), page.render());
+        views.render(ctx, "Cadastro", page.render());
     }
 
     public void showLogin(Context ctx) throws IOException, SQLException {
@@ -62,12 +62,10 @@ public class AuthController {
         try {
             user = authService.login(email, password);
         } catch (BusinessRuleException exception) {
-            Requests.flashError(ctx, exception.getMessageKey());
+            Requests.flashError(ctx, exception.getMessage());
             renderLogin(ctx, email);
             return;
         }
-        // A new session id after login prevents session fixation.
-        ctx.req().changeSessionId();
         ctx.sessionAttribute("userId", user.getId());
         ctx.sessionAttribute("userName", user.getName());
         ctx.sessionAttribute("administrator", user.isAdministrator());
@@ -77,19 +75,11 @@ public class AuthController {
     private void renderLogin(Context ctx, String email) throws IOException, SQLException {
         Template page = views.template(ctx, "login");
         page.set("email", email);
-        views.render(ctx, views.messages(ctx).get("login.title"), page.render());
+        views.render(ctx, "Entrar", page.render());
     }
 
     public void logout(Context ctx) {
         ctx.req().getSession().invalidate();
-        ctx.redirect("/");
-    }
-
-    public void changeLanguage(Context ctx) {
-        String code = Requests.form(ctx, "code");
-        if (code.equals("pt_BR") || code.equals("en")) {
-            ctx.sessionAttribute("language", code);
-        }
         ctx.redirect("/");
     }
 }

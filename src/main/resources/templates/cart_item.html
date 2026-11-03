@@ -3,9 +3,8 @@
     <td>{{price}}</td>
     <td>
         <form method="post" action="/cart/remove">
-            <input type="hidden" name="csrf" value="{{csrf}}">
             <input type="hidden" name="gameId" value="{{gameId}}">
-            <button class="link">{{msg:cart.remove}}</button>
+            <button class="link">Remover</button>
         </form>
     </td>
 </tr>

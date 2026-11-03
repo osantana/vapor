@@ -26,12 +26,13 @@ import vapor.service.CatalogService;
 
 public class CatalogController {
     private static final String[] FILTER_NAMES = {"q", "genre", "platform", "min", "max", "from", "sort"};
-    private static final String[] SORT_OPTIONS = {"relevance", "price", "release"};
+    private static final String[] SORT_CODES = {"relevance", "price", "release"};
+    private static final String[] SORT_LABELS = {"Relevância", "Preço", "Data de lançamento"};
 
-    private Views views;
-    private CatalogRepository catalogRepository;
-    private CartRepository cartRepository;
-    private LibraryRepository libraryRepository;
+    private final Views views;
+    private final CatalogRepository catalogRepository;
+    private final CartRepository cartRepository;
+    private final LibraryRepository libraryRepository;
 
     public CatalogController(Views views, CatalogRepository catalogRepository, CartRepository cartRepository,
                              LibraryRepository libraryRepository) {
@@ -42,7 +43,6 @@ public class CatalogController {
     }
 
     public void list(Context ctx) throws IOException, SQLException {
-        Messages messages = views.messages(ctx);
         GameFilter filter = readFilter(ctx);
         List<Game> games = catalogRepository.search(filter);
 
@@ -53,10 +53,10 @@ public class CatalogController {
 
         String cards = "";
         for (Game game : games) {
-            cards += card(ctx, game, messages);
+            cards += card(ctx, game);
         }
         if (games.isEmpty()) {
-            cards = views.template(ctx, "message").set("text", messages.get("catalog.empty")).render();
+            cards = views.template(ctx, "message").set("text", "Nenhum jogo encontrado.").render();
         }
 
         Template page = views.template(ctx, "catalog");
@@ -66,10 +66,10 @@ public class CatalogController {
         page.set("from", Requests.query(ctx, "from"));
         page.setHtml("genreOptions", genreOptions(ctx, filter));
         page.setHtml("platformOptions", platformOptions(ctx, filter));
-        page.setHtml("sortOptions", sortOptions(ctx, filter, messages));
+        page.setHtml("sortOptions", sortOptions(ctx, filter));
         page.setHtml("cards", cards);
         page.setHtml("pagination", pagination(ctx, filter, hasNextPage));
-        views.render(ctx, messages.get("catalog.title"), page.render());
+        views.render(ctx, "Catálogo", page.render());
     }
 
     private GameFilter readFilter(Context ctx) {
@@ -110,12 +110,12 @@ public class CatalogController {
         return filter;
     }
 
-    private String card(Context ctx, Game game, Messages messages) throws IOException {
+    private String card(Context ctx, Game game) throws IOException {
         Template card = views.template(ctx, "catalog_card");
         card.set("id", game.getId());
         card.set("title", game.getTitle());
         card.set("cover", cover(game));
-        card.set("price", Format.price(game.getPrice(), messages));
+        card.set("price", Format.price(game.getPrice()));
         return card.render();
     }
 
@@ -144,11 +144,11 @@ public class CatalogController {
         return options;
     }
 
-    private String sortOptions(Context ctx, GameFilter filter, Messages messages) throws IOException {
+    private String sortOptions(Context ctx, GameFilter filter) throws IOException {
         String options = "";
-        for (String sort : SORT_OPTIONS) {
-            boolean selected = sort.equals(filter.getSort());
-            options += option(ctx, sort, messages.get("catalog.sort." + sort), selected);
+        for (int index = 0; index < SORT_CODES.length; index++) {
+            boolean selected = SORT_CODES[index].equals(filter.getSort());
+            options += option(ctx, SORT_CODES[index], SORT_LABELS[index], selected);
         }
         return options;
     }
@@ -186,7 +186,6 @@ public class CatalogController {
     }
 
     public void detail(Context ctx) throws IOException, SQLException {
-        Messages messages = views.messages(ctx);
         Game game = catalogRepository.findById(Requests.id(ctx.pathParam("id")));
         if (!canView(ctx, game)) {
             throw new NotFoundException("Game " + game.getId() + " not found");
@@ -208,8 +207,8 @@ public class CatalogController {
         page.set("requirements", game.getSystemRequirements());
         page.set("publisher", game.getCreatorName());
         page.set("releaseDate", Format.date(game.getReleaseDate()));
-        page.set("price", Format.price(game.getPrice(), messages));
-        page.set("status", messages.get("status." + game.getStatus().name().toLowerCase()));
+        page.set("price", Format.price(game.getPrice()));
+        page.set("status", game.getStatus().getLabel());
         page.setHtml("genres", genres);
         page.setHtml("platforms", platforms);
         page.setHtml("action", action(ctx, game));

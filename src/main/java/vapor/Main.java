@@ -47,8 +47,7 @@ public class Main {
         CatalogService catalogService = new CatalogService(catalogRepository);
         CheckoutService checkoutService = new CheckoutService(cartRepository, orderRepository,
                 libraryRepository, paymentGateway);
-        DownloadService downloadService = new DownloadService(config.require("SECRET_KEY"),
-                libraryRepository, catalogRepository);
+        DownloadService downloadService = new DownloadService(libraryRepository, catalogRepository);
 
         authService.ensureAdministrator(config.require("ADMIN_EMAIL"), config.require("ADMIN_PASSWORD"));
         if (config.get("DEMO_DATA", "false").equals("true")) {
@@ -81,7 +80,6 @@ public class Main {
             javalin.routes.get("/login", ctx -> auth.showLogin(ctx));
             javalin.routes.post("/login", ctx -> auth.login(ctx));
             javalin.routes.post("/logout", ctx -> auth.logout(ctx));
-            javalin.routes.post("/language", ctx -> auth.changeLanguage(ctx));
 
             javalin.routes.get("/cart", ctx -> cart.show(ctx));
             javalin.routes.post("/cart/add", ctx -> cart.add(ctx));
@@ -90,8 +88,7 @@ public class Main {
             javalin.routes.get("/orders", ctx -> orders.list(ctx));
 
             javalin.routes.get("/library", ctx -> library.list(ctx));
-            javalin.routes.post("/library/download", ctx -> library.createDownloadLink(ctx));
-            javalin.routes.get("/download/{gameId}/{assetId}", ctx -> library.download(ctx));
+            javalin.routes.post("/library/download", ctx -> library.download(ctx));
 
             javalin.routes.get("/publisher", ctx -> publisher.dashboard(ctx));
             javalin.routes.get("/publisher/games/new", ctx -> publisher.showGameForm(ctx));
@@ -104,7 +101,7 @@ public class Main {
             javalin.routes.exception(NotFoundException.class, (exception, ctx) -> {
                 ctx.status(404);
                 try {
-                    views.renderMessage(ctx, "error.notFound");
+                    views.renderMessage(ctx, "Página não encontrada", "Página não encontrada.");
                 } catch (IOException | SQLException renderFailure) {
                     ctx.result("Not found");
                 }

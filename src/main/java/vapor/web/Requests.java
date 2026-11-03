@@ -43,19 +43,14 @@ public class Requests {
         return value.trim();
     }
 
-    public static void flash(Context ctx, String messageKey) {
-        flash(ctx, messageKey, "");
+    // The flash message is shown once, on the next page the user sees.
+    public static void flash(Context ctx, String text) {
+        ctx.sessionAttribute("flash", text);
+        ctx.sessionAttribute("flashKind", "success");
     }
 
-    public static void flash(Context ctx, String messageKey, String argument) {
-        ctx.sessionAttribute("flash", messageKey);
-        ctx.sessionAttribute("flashArgument", argument);
-        ctx.sessionAttribute("flashError", false);
-    }
-
-    public static void flashError(Context ctx, String messageKey) {
-        ctx.sessionAttribute("flash", messageKey);
-        ctx.sessionAttribute("flashArgument", "");
-        ctx.sessionAttribute("flashError", true);
+    public static void flashError(Context ctx, String text) {
+        ctx.sessionAttribute("flash", text);
+        ctx.sessionAttribute("flashKind", "error");
     }
 }
