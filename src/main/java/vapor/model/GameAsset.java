@@ -17,16 +17,12 @@ public class GameAsset {
         return fileSize / (1024 * 1024);
     }
 
-    public String getPlatformName() {
-        return platform.getName();
-    }
-
-    public long getPlatformId() {
-        return platform.getId();
-    }
-
     public long getId() {
         return id;
+    }
+
+    public Platform getPlatform() {
+        return platform;
     }
 
     public long getFileSize() {

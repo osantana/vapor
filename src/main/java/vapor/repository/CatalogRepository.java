@@ -71,9 +71,9 @@ public class CatalogRepository {
             sql += " AND g.id IN (SELECT game_id FROM game_genres WHERE genre_id = ?)";
             parameters.add(filter.getGenreId());
         }
-        if (filter.getPlatformId() != 0) {
-            sql += " AND g.id IN (SELECT game_id FROM game_platforms WHERE platform_id = ?)";
-            parameters.add(filter.getPlatformId());
+        if (filter.getPlatform() != null) {
+            sql += " AND g.id IN (SELECT game_id FROM game_assets WHERE platform = ?)";
+            parameters.add(filter.getPlatform().getCode());
         }
         if (filter.getMinimumPrice() != null) {
             sql += " AND g.price >= ?";
@@ -150,21 +150,14 @@ public class CatalogRepository {
     }
 
     private void insertAssets(Connection connection, Game game) throws SQLException {
-        String platformSql = "INSERT INTO game_platforms (game_id, platform_id) VALUES (?, ?)";
-        String assetSql = "INSERT INTO game_assets (game_id, platform_id, file_size, download_url)"
-                + " VALUES (?, ?, ?, ?)";
-        try (PreparedStatement platformStatement = connection.prepareStatement(platformSql);
-             PreparedStatement assetStatement = connection.prepareStatement(assetSql)) {
+        String sql = "INSERT INTO game_assets (game_id, platform, file_size, download_url) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             for (GameAsset asset : game.getAssets()) {
-                platformStatement.setLong(1, game.getId());
-                platformStatement.setLong(2, asset.getPlatformId());
-                platformStatement.executeUpdate();
-
-                assetStatement.setLong(1, game.getId());
-                assetStatement.setLong(2, asset.getPlatformId());
-                assetStatement.setLong(3, asset.getFileSize());
-                assetStatement.setString(4, asset.getDownloadUrl());
-                assetStatement.executeUpdate();
+                statement.setLong(1, game.getId());
+                statement.setString(2, asset.getPlatform().getCode());
+                statement.setLong(3, asset.getFileSize());
+                statement.setString(4, asset.getDownloadUrl());
+                statement.executeUpdate();
             }
         }
     }
@@ -200,18 +193,6 @@ public class CatalogRepository {
             }
         }
         return genres;
-    }
-
-    public List<Platform> listPlatforms() throws SQLException {
-        List<Platform> platforms = new ArrayList<>();
-        try (Connection connection = database.connect();
-             Statement statement = connection.createStatement()) {
-            ResultSet rows = statement.executeQuery("SELECT * FROM platforms ORDER BY name");
-            while (rows.next()) {
-                platforms.add(new Platform(rows.getLong("id"), rows.getString("name")));
-            }
-        }
-        return platforms;
     }
 
     private List<Game> rowsToGames(Connection connection, ResultSet rows) throws SQLException {
@@ -255,16 +236,14 @@ public class CatalogRepository {
     }
 
     private void loadAssets(Connection connection, Game game) throws SQLException {
-        String sql = "SELECT a.*, p.name AS platform_name FROM game_assets a"
-                + " JOIN platforms p ON p.id = a.platform_id WHERE a.game_id = ? ORDER BY p.name";
+        String sql = "SELECT * FROM game_assets WHERE game_id = ? ORDER BY platform";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, game.getId());
             ResultSet rows = statement.executeQuery();
             while (rows.next()) {
-                Platform platform = new Platform(rows.getLong("platform_id"), rows.getString("platform_name"));
                 game.addAsset(new GameAsset(
                         rows.getLong("id"),
-                        platform,
+                        Platform.fromCode(rows.getString("platform")),
                         rows.getLong("file_size"),
                         rows.getString("download_url")));
             }

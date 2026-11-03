@@ -61,7 +61,7 @@ public class LibraryController {
             Template download = views.template(ctx, "library_download");
             download.set("gameId", game.getId());
             download.set("assetId", asset.getId());
-            download.set("platform", asset.getPlatformName());
+            download.set("platform", asset.getPlatform().getLabel());
             download.set("size", asset.getFileSizeInMegabytes());
             downloads += download.render();
         }

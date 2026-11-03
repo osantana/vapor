@@ -132,10 +132,10 @@ public class PublisherController {
                 game.addGenre(genre);
             }
         }
-        for (Platform platform : catalogRepository.listPlatforms()) {
-            String url = Requests.form(ctx, "url_" + platform.getId());
+        for (Platform platform : Platform.values()) {
+            String url = Requests.form(ctx, "url_" + platform.getCode());
             if (!url.isEmpty()) {
-                long size = readSize(Requests.form(ctx, "size_" + platform.getId()));
+                long size = readSize(Requests.form(ctx, "size_" + platform.getCode()));
                 game.addAsset(new GameAsset(0, platform, size, url));
             }
         }
@@ -176,12 +176,12 @@ public class PublisherController {
         }
 
         String platforms = "";
-        for (Platform platform : catalogRepository.listPlatforms()) {
+        for (Platform platform : Platform.values()) {
             Template fields = views.template(ctx, "game_form_platform");
-            fields.set("id", platform.getId());
-            fields.set("name", platform.getName());
-            fields.set("url", Requests.form(ctx, "url_" + platform.getId()));
-            fields.set("size", Requests.form(ctx, "size_" + platform.getId()));
+            fields.set("id", platform.getCode());
+            fields.set("name", platform.getLabel());
+            fields.set("url", Requests.form(ctx, "url_" + platform.getCode()));
+            fields.set("size", Requests.form(ctx, "size_" + platform.getCode()));
             platforms += fields.render();
         }
 

@@ -1,19 +1,26 @@
 package vapor.model;
 
-public class Platform {
-    private final long id;
-    private final String name;
+public enum Platform {
+    WINDOWS("Windows"),
+    MACOS("macOS"),
+    LINUX("Linux");
 
-    public Platform(long id, String name) {
-        this.id = id;
-        this.name = name;
+    private final String label;
+
+    Platform(String label) {
+        this.label = label;
     }
 
-    public long getId() {
-        return id;
+    public String getLabel() {
+        return label;
     }
 
-    public String getName() {
-        return name;
+    // The value used in the database and in form fields: "windows", "macos", "linux".
+    public String getCode() {
+        return name().toLowerCase();
+    }
+
+    public static Platform fromCode(String code) {
+        return valueOf(code.toUpperCase());
     }
 }

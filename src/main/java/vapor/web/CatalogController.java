@@ -83,7 +83,7 @@ public class CatalogController {
             }
             String platform = Requests.query(ctx, "platform");
             if (!platform.isEmpty()) {
-                filter.setPlatformId(Long.parseLong(platform));
+                filter.setPlatform(Platform.fromCode(platform));
             }
             String minimum = Requests.query(ctx, "min");
             if (!minimum.isEmpty()) {
@@ -135,11 +135,11 @@ public class CatalogController {
         return options;
     }
 
-    private String platformOptions(Context ctx, GameFilter filter) throws IOException, SQLException {
+    private String platformOptions(Context ctx, GameFilter filter) throws IOException {
         String options = "";
-        for (Platform platform : catalogRepository.listPlatforms()) {
-            boolean selected = platform.getId() == filter.getPlatformId();
-            options += option(ctx, String.valueOf(platform.getId()), platform.getName(), selected);
+        for (Platform platform : Platform.values()) {
+            boolean selected = platform == filter.getPlatform();
+            options += option(ctx, platform.getCode(), platform.getLabel(), selected);
         }
         return options;
     }
@@ -198,7 +198,7 @@ public class CatalogController {
         }
         String platforms = "";
         for (GameAsset asset : game.getAssets()) {
-            platforms += views.template(ctx, "tag").set("text", asset.getPlatformName()).render();
+            platforms += views.template(ctx, "tag").set("text", asset.getPlatform().getLabel()).render();
         }
 
         Template page = views.template(ctx, "game");

@@ -4,9 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(254) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'administrator')),
-    created_at TIMESTAMPTZ NOT NULL,
-    failed_logins INTEGER NOT NULL DEFAULT 0,
-    locked_until TIMESTAMPTZ
+    created_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS games (
@@ -28,29 +26,19 @@ CREATE TABLE IF NOT EXISTS genres (
     name VARCHAR(60) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS platforms (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(60) NOT NULL UNIQUE
-);
-
 CREATE TABLE IF NOT EXISTS game_genres (
     game_id BIGINT NOT NULL REFERENCES games(id),
     genre_id BIGINT NOT NULL REFERENCES genres(id),
     PRIMARY KEY (game_id, genre_id)
 );
 
-CREATE TABLE IF NOT EXISTS game_platforms (
-    game_id BIGINT NOT NULL REFERENCES games(id),
-    platform_id BIGINT NOT NULL REFERENCES platforms(id),
-    PRIMARY KEY (game_id, platform_id)
-);
-
 CREATE TABLE IF NOT EXISTS game_assets (
     id BIGSERIAL PRIMARY KEY,
     game_id BIGINT NOT NULL REFERENCES games(id),
-    platform_id BIGINT NOT NULL REFERENCES platforms(id),
+    platform VARCHAR(20) NOT NULL CHECK (platform IN ('windows', 'macos', 'linux')),
     file_size BIGINT NOT NULL,
-    download_url VARCHAR(500) DEFAULT ''
+    download_url VARCHAR(500) DEFAULT '',
+    UNIQUE (game_id, platform)
 );
 
 CREATE TABLE IF NOT EXISTS cart_items (
@@ -95,10 +83,4 @@ INSERT INTO genres (name) VALUES
     ('Simulation'),
     ('Sports'),
     ('Strategy')
-ON CONFLICT (name) DO NOTHING;
-
-INSERT INTO platforms (name) VALUES
-    ('Windows'),
-    ('macOS'),
-    ('Linux')
 ON CONFLICT (name) DO NOTHING;
